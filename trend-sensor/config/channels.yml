@@ -1,0 +1,28 @@
+channels:
+  - id: UCOzMAa6IhV6uwYQATYG_2kg  # Novara Media
+    name: "Novara Media"
+    tier: core
+
+  - id: UCBtvdjob_29m85wjfQS1ALg  # Citations Needed
+    name: "Citations Needed"
+    tier: core
+
+  - id: UCrmm_7RDZJeQzq2-wvmjueg  # The Real News Network
+    name: "The Real News Network"
+    tier: core
+
+  - id: UCzGUT9PjV3SMBwjWXUYh4HA  # Jacobin
+    name: "Jacobin"
+    tier: core
+
+  - id: UCK-6FjMu9OI8i0Fo6bkW0VA  # Richard Wolff / Democracy at Work
+    name: "Democracy at Work"
+    tier: core
+
+  - id: UCSmOl7Hau-YX2VKfz1CMAZQ  # Current Affairs
+    name: "Current Affairs"
+    tier: broad
+
+  - id: UCV6zxTJ8MR6kN6kZ0ZBJiqQ  # Means TV
+    name: "Means TV"
+    tier: broad
