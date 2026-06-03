@@ -1,0 +1,32 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python Cache and Compilation
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Local Database Cache (SQLite)
+trend-sensor/data/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# System & Editor Files
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Local Environment Secrets
+.env
+**/secrets.json
