@@ -3,26 +3,26 @@ channels:
     name: "Novara Media"
     tier: core
 
-  - id: UCBtvdjob_29m85wjfQS1ALg  # Citations Needed
-    name: "Citations Needed"
+  - id: UC-3jIAlnQmbbVMV6gR7K8aQ  # The Majority Report w/ Sam Seder
+    name: "The Majority Report"
     tier: core
 
-  - id: UCrmm_7RDZJeQzq2-wvmjueg  # The Real News Network
-    name: "The Real News Network"
+  - id: UCJm2TgUqtK1_NLBrjNQ1P-w  # Second Thought
+    name: "Second Thought"
     tier: core
 
-  - id: UCzGUT9PjV3SMBwjWXUYh4HA  # Jacobin
-    name: "Jacobin"
+  - id: UC-AQKm7HUNMmxjdS371MSwg  # Channel 5 with Andrew Callaghan
+    name: "Channel 5 with Andrew Callaghan"
     tier: core
 
-  - id: UCK-6FjMu9OI8i0Fo6bkW0VA  # Richard Wolff / Democracy at Work
-    name: "Democracy at Work"
+  - id: UCERIQ0-dth5XhyPnLfVFa2A  # Democracy Now!
+    name: "Democracy Now!"
+    tier: core
+
+  - id: UC_K47kgAn0E6m6tAMeD00_g  # Hakim
+    name: "Hakim"
     tier: core
 
   - id: UCSmOl7Hau-YX2VKfz1CMAZQ  # Current Affairs
     name: "Current Affairs"
-    tier: broad
-
-  - id: UCV6zxTJ8MR6kN6kZ0ZBJiqQ  # Means TV
-    name: "Means TV"
     tier: broad

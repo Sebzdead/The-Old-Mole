@@ -74,10 +74,25 @@ Edit `trend-sensor/config/channels.yml` to customize the list of monitored chann
 
 ```yaml
 channels:
-  - id: UCJNAmHGNKMWlRHvxR0gCHyg
+  - id: UCOzMAa6IhV6uwYQATYG_2kg
     name: "Novara Media"
     tier: core
-  - id: UCPHBfMvFKGEFg5UISC3D_Bg
+  - id: UC-3jIAlnQmbbVMV6gR7K8aQ
+    name: "The Majority Report"
+    tier: core
+  - id: UCJm2TgUqtK1_NLBrjNQ1P-w
+    name: "Second Thought"
+    tier: core
+  - id: UC-AQKm7HUNMmxjdS371MSwg
+    name: "Channel 5 with Andrew Callaghan"
+    tier: core
+  - id: UCERIQ0-dth5XhyPnLfVFa2A
+    name: "Democracy Now!"
+    tier: core
+  - id: UC_K47kgAn0E6m6tAMeD00_g
+    name: "Hakim"
+    tier: core
+  - id: UCSmOl7Hau-YX2VKfz1CMAZQ
     name: "Current Affairs"
     tier: broad
 ```
