@@ -86,10 +86,10 @@ channels:
   - id: UC-AQKm7HUNMmxjdS371MSwg
     name: "Channel 5 with Andrew Callaghan"
     tier: core
-  - id: UCERIQ0-dth5XhyPnLfVFa2A
+  - id: UCzuqE7-t13O4NIDYJfakrhw
     name: "Democracy Now!"
     tier: core
-  - id: UC_K47kgAn0E6m6tAMeD00_g
+  - id: UCJmlCcnfMlyPA2oSbb072QA
     name: "Hakim"
     tier: core
   - id: UCSmOl7Hau-YX2VKfz1CMAZQ

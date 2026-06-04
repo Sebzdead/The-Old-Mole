@@ -15,11 +15,11 @@ channels:
     name: "Channel 5 with Andrew Callaghan"
     tier: core
 
-  - id: UCERIQ0-dth5XhyPnLfVFa2A  # Democracy Now!
+  - id: UCzuqE7-t13O4NIDYJfakrhw  # Democracy Now!
     name: "Democracy Now!"
     tier: core
 
-  - id: UC_K47kgAn0E6m6tAMeD00_g  # Hakim
+  - id: UCJmlCcnfMlyPA2oSbb072QA  # Hakim
     name: "Hakim"
     tier: core
 
