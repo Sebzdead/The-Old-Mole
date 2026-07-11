@@ -7,13 +7,11 @@ from src.cache import is_video_cached
 
 def get_youtube_client():
     """Builds and returns a YouTube Data API client."""
-    api_key = os.environ.get(
-        "YOUTUBE_API_KEY", "AIzaSyBbifKeM6QnAPsxYu2x1doQMhuy-RRDYTM"
-    )
-    if api_key == "AIzaSyBbifKeM6QnAPsxYu2x1doQMhuy-RRDYTM":
-        print("Using default fallback YouTube API Key.")
-    else:
-        print("Using YouTube API Key from environment.")
+    api_key = os.environ.get("YOUTUBE_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "YOUTUBE_API_KEY environment variable is not set."
+        )
     return build("youtube", "v3", developerKey=api_key)
 
 
