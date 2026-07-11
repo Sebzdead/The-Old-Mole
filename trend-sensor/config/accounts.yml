@@ -1,0 +1,5 @@
+# Own-account identifiers (not secrets — secrets live in .env at repo root).
+# own_youtube_channel_id: find at https://www.youtube.com/account_advanced
+# instagram_user_id: the IG *Business* user ID (numeric), see docs/setup-instagram.md
+own_youtube_channel_id: "REPLACE_WITH_CHANNEL_ID"
+instagram_user_id: "REPLACE_WITH_IG_USER_ID"
