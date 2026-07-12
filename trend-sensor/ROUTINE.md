@@ -1,0 +1,97 @@
+# Weekly Intelligence Report — Routine Instructions
+
+You are producing The Old Mole's weekly intelligence report. The data
+collector has already run; your job is analysis and writing.
+
+## Inputs
+
+Read the newest directory under `trend-sensor/output/` (named `YYYY-MM-DD`):
+
+- `run_meta.json` — run date, reporting windows, and per-source `statuses`.
+- `competitor_corpus.md` — formatted competitor transcripts/metadata.
+- `competitor_meta.json` — video/channel counts.
+- `own_youtube.json` — channel week metrics (this + prev week), traffic
+  sources, recent uploads (each with `metrics` and `comments`), and
+  `back_catalog_movers`.
+- `instagram.json` — recent posts (each with `insights` and `comments`),
+  `back_catalog_movers`, and `permalinks`.
+
+## Output
+
+Write `trend-sensor/digests/{run_date}.md` with EXACTLY these five sections:
+
+### 0. Header and warning banners
+
+Title: `# Weekly Intelligence Report — {run_date}`.
+For every source in `run_meta.json` statuses with `"ok": false`, add
+immediately under the title:
+
+> ⚠️ **{source} data missing this week:** {error}. The affected sections
+> are omitted or partial.
+
+### 1. `## TL;DR`
+
+At most 10 bullets. The single most important takeaways across all
+sections: biggest performance story, loudest audience signal, most
+significant landscape shift, top content opportunity. Every bullet must be
+specific (name the video/post/theme and the number that matters).
+
+### 2. `## Our Week`
+
+- Channel table: this week vs. prev week (views, watch time, avg view
+  duration, subs gained/lost) with % change.
+- Traffic sources: top 3 with view counts.
+- Per recent upload (YouTube, then Instagram): title/caption (first ~60
+  chars), key metrics inline. Order by views/reach descending.
+- `### Back-catalog movers`: each mover with its numbers and permalink/URL.
+  If none: "No unusual back-catalog activity this week."
+- Note: impressions/CTR are not available via API (YouTube Studio only).
+
+### 3. `## Our Audience`
+
+For each recent post that has comments (skip posts with none):
+- Sentiment split: rough % positive / negative / mixed-neutral.
+- 3-5 recurring comment clusters, each with a one-line label and ONE
+  representative quote (verbatim, ≤25 words).
+- Standout comments worth acting on: substantive critiques, questions
+  worth answering, and explicit content requests.
+
+End with `### Cross-cutting audience signals`: 2-4 bullets on patterns
+appearing across multiple posts/platforms.
+
+### 4. `## The Landscape`
+
+Analyze `competitor_corpus.md` for 6-10 structural themes, exactly as the
+podcast's analytical tradition demands: not news summaries but underlying
+contradictions, long-running crises, and social anxieties multiple sources
+are independently circling. For each theme (H3 heading):
+
+1. Concise name (≤5 words)
+2. The structural dynamic in 2-3 sentences (what contradiction or tendency
+   of capitalism produces this?)
+3. Signal strength: HIGH / MEDIUM / LOW
+
+Then `### Theme × Framing Matrix` — a table: rows = themes, columns =
+channels that touched the theme, cells = a 2-5 word framing/tone
+descriptor (e.g. "doomer explainer", "organizing-focused", "polemic",
+"electoral horse-race", "ironic/meme"). Present the matrix RAW: no
+commentary, no recommendations, no "gap" analysis in this section.
+
+### 5. `## Podcast Angles`
+
+3-6 concrete episode angles connecting the landscape themes to what OUR
+audience is asking for (from Our Audience). Each: a framing/question that
+makes for Marxist analysis rather than liberal commentary, plus one line
+on why now.
+
+## Style
+
+The whole report must be readable in ~10 minutes. Tables over prose for
+numbers. No preamble, no meta-commentary about your process.
+
+## After writing the report
+
+1. `git add trend-sensor/digests/ trend-sensor/state/`
+2. Commit with message `digest: {run_date}` and push.
+3. Your completion message must be the TL;DR section verbatim, prefixed
+   by any warning banners.
