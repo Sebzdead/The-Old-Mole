@@ -16,6 +16,28 @@ Read the newest directory under `trend-sensor/output/` (named `YYYY-MM-DD`):
 - `instagram.json` — recent posts (each with `insights` and `comments`),
   `back_catalog_movers`, and `permalinks`.
 
+## Ground rules
+
+- `{run_date}` always means the `run_date` field in `run_meta.json` (it
+  matches the output directory name) — never today's actual date.
+- "Newest directory" means the directory whose `YYYY-MM-DD` name sorts
+  greatest as a string. If that date is more than 7 days old, or if
+  `run_meta.json` is missing from it, treat the run as a collector
+  failure (see "When collection fails" below).
+- If `trend-sensor/digests/{run_date}.md` already exists, overwrite it —
+  a rerun replaces the same day's report.
+
+## When collection fails
+
+If `run_meta.json` is missing, or EVERY source status is `"ok": false`,
+do not fabricate analysis: write only the header and warning banners plus
+one line explaining that collection failed, skip all five analysis
+sections, still commit (so the failure is visible in history), and say
+plainly in your completion message that this week's report is empty and
+why. If only SOME sources failed, keep every mandated H2 heading: for a
+section whose source data is missing, write the heading and one line —
+"No data this week — {source} failed." Never drop a mandated heading.
+
 ## Output
 
 Write `trend-sensor/digests/{run_date}.md` with EXACTLY these five sections:
@@ -35,6 +57,8 @@ At most 10 bullets. The single most important takeaways across all
 sections: biggest performance story, loudest audience signal, most
 significant landscape shift, top content opportunity. Every bullet must be
 specific (name the video/post/theme and the number that matters).
+Cover a category only when there is a genuine signal — never pad toward
+10 bullets.
 
 ### 2. `## Our Week`
 
@@ -45,6 +69,8 @@ specific (name the video/post/theme and the number that matters).
   chars), key metrics inline. Order by views/reach descending.
 - `### Back-catalog movers`: each mover with its numbers and permalink/URL.
   If none: "No unusual back-catalog activity this week."
+  For YouTube movers, build the URL as
+  `https://www.youtube.com/watch?v={video_id}`.
 - Note: impressions/CTR are not available via API (YouTube Studio only).
 
 ### 3. `## Our Audience`
@@ -92,6 +118,10 @@ numbers. No preamble, no meta-commentary about your process.
 ## After writing the report
 
 1. `git add trend-sensor/digests/ trend-sensor/state/`
-2. Commit with message `digest: {run_date}` and push.
+2. Commit with message `digest: {run_date}` and push. If git reports
+   nothing to commit, skip the push and note it in your completion
+   message. If the push is rejected, `git pull --rebase` once and retry;
+   if it still fails, report the failure in your completion message
+   rather than stopping silently.
 3. Your completion message must be the TL;DR section verbatim, prefixed
    by any warning banners.
