@@ -20,7 +20,10 @@ def fetch_comments(youtube, video_id: str, max_comments: int = 100) -> list[dict
                 )
                 .execute()
             )
-            for item in response.get("items", []):
+            items = response.get("items", [])
+            if not items:
+                break
+            for item in items:
                 top = item["snippet"]["topLevelComment"]["snippet"]
                 comments.append(
                     {

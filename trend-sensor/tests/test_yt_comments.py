@@ -57,6 +57,17 @@ def test_fetch_comments_paginates_and_caps():
     assert comments[0]["like_count"] == 3
 
 
+def test_fetch_comments_stops_on_empty_page_with_token():
+    # Pathological API response: empty items but a nextPageToken present.
+    # Without a guard this would loop forever.
+    client = FakeDataClient([_page(["a"] * 5, "tok"), _page([], "tok2")])
+    comments = yt_comments.fetch_comments(client, "vid1", max_comments=100)
+    assert len(comments) == 5
+    # The empty page must terminate pagination: exactly two API calls,
+    # no third attempt to follow "tok2".
+    assert len(client.commentThreads().calls) == 2
+
+
 def test_fetch_comments_returns_empty_on_error():
     class Exploding:
         def commentThreads(self):
