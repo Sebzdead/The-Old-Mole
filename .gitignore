@@ -30,3 +30,9 @@ trend-sensor/data/
 # Local Environment Secrets
 .env
 **/secrets.json
+
+# Weekly raw data bundles (ephemeral; the digest is the durable artifact)
+trend-sensor/output/
+
+# Google OAuth client file used by scripts/get_yt_refresh_token.py
+client_secret.json
