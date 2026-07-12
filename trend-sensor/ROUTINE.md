@@ -37,6 +37,9 @@ plainly in your completion message that this week's report is empty and
 why. If only SOME sources failed, keep every mandated H2 heading: for a
 section whose source data is missing, write the heading and one line —
 "No data this week — {source} failed." Never drop a mandated heading.
+In the collector-failure case (stale or missing output directory), never
+overwrite an existing digest; name the failure report after today's date
+instead.
 
 ## Output
 
