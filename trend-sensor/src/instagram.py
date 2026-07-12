@@ -37,7 +37,10 @@ def fetch_media(ig_user_id: str, token: str, limit: int = 100) -> list[dict]:
     params = {"fields": MEDIA_FIELDS, "access_token": token, "limit": 50}
     while url and len(media) < limit:
         data = _get(url, params)
-        media.extend(data.get("data", []))
+        page_items = data.get("data", [])
+        if not page_items:
+            break
+        media.extend(page_items)
         url = data.get("paging", {}).get("next")
         params = {}  # the `next` URL already carries all query params
     return media[:limit]
@@ -51,7 +54,7 @@ def fetch_media_insights(media_id: str, token: str, media_product_type: str) -> 
             f"{GRAPH_BASE}/{media_id}/insights",
             {"metric": metrics, "access_token": token},
         )
-    except RuntimeError as e:
+    except Exception as e:
         print(f"Warning: insights fetch failed for media {media_id}: {e}")
         return {}
     out = {}
@@ -73,10 +76,13 @@ def fetch_media_comments(media_id: str, token: str, max_comments: int = 100) -> 
     try:
         while url and len(comments) < max_comments:
             data = _get(url, params)
-            comments.extend(data.get("data", []))
+            page_items = data.get("data", [])
+            if not page_items:
+                break
+            comments.extend(page_items)
             url = data.get("paging", {}).get("next")
             params = {}
-    except RuntimeError as e:
+    except Exception as e:
         print(f"Warning: comment fetch failed for media {media_id}: {e}")
     return comments[:max_comments]
 
@@ -142,6 +148,8 @@ def load_snapshot(path: str) -> dict:
 
 
 def save_snapshot(path: str, snapshot: dict) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    directory = os.path.dirname(path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(snapshot, f, indent=2)

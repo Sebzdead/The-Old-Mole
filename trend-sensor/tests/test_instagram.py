@@ -23,6 +23,46 @@ def test_fetch_media_paginates(monkeypatch):
     assert calls[1] == "https://graph.facebook.com/next"
 
 
+def test_fetch_media_stops_on_empty_page_with_next(monkeypatch):
+    pages = [
+        {
+            "data": [{"id": "1", "like_count": 5}],
+            "paging": {"next": "https://graph.facebook.com/next"},
+        },
+        {"data": [], "paging": {"next": "https://graph.facebook.com/next2"}},
+    ]
+    calls = []
+
+    def fake_get(url, params):
+        calls.append(url)
+        return pages.pop(0)
+
+    monkeypatch.setattr(instagram, "_get", fake_get)
+    media = instagram.fetch_media("178414", "tok")
+    assert [m["id"] for m in media] == ["1"]
+    assert len(calls) == 2
+
+
+def test_fetch_media_comments_stops_on_empty_page_with_next(monkeypatch):
+    pages = [
+        {
+            "data": [{"text": "hi", "like_count": 1}],
+            "paging": {"next": "https://graph.facebook.com/next"},
+        },
+        {"data": [], "paging": {"next": "https://graph.facebook.com/next2"}},
+    ]
+    calls = []
+
+    def fake_get(url, params):
+        calls.append(url)
+        return pages.pop(0)
+
+    monkeypatch.setattr(instagram, "_get", fake_get)
+    comments = instagram.fetch_media_comments("m1", "tok")
+    assert [c["text"] for c in comments] == ["hi"]
+    assert len(calls) == 2
+
+
 def test_fetch_media_insights_flattens_values(monkeypatch):
     def fake_get(url, params):
         return {
@@ -43,6 +83,22 @@ def test_fetch_media_insights_tolerates_errors(monkeypatch):
 
     monkeypatch.setattr(instagram, "_get", fake_get)
     assert instagram.fetch_media_insights("m1", "tok", "REELS") == {}
+
+
+def test_fetch_media_insights_tolerates_non_runtime_errors(monkeypatch):
+    def fake_get(url, params):
+        raise ValueError("not json")
+
+    monkeypatch.setattr(instagram, "_get", fake_get)
+    assert instagram.fetch_media_insights("m1", "tok", "FEED") == {}
+
+
+def test_fetch_media_comments_tolerates_non_runtime_errors(monkeypatch):
+    def fake_get(url, params):
+        raise ValueError("not json")
+
+    monkeypatch.setattr(instagram, "_get", fake_get)
+    assert instagram.fetch_media_comments("m1", "tok") == []
 
 
 def test_compute_movers_requires_baseline_and_thresholds():
@@ -86,3 +142,9 @@ def test_snapshot_roundtrip(tmp_path):
     assert instagram.load_snapshot(path) == {"media": {}}
     instagram.save_snapshot(path, {"snapshot_date": "d", "media": {"x": {}}})
     assert instagram.load_snapshot(path)["media"] == {"x": {}}
+
+
+def test_save_snapshot_accepts_bare_filename(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    instagram.save_snapshot("snap.json", {"snapshot_date": "d", "media": {}})
+    assert instagram.load_snapshot("snap.json") == {"snapshot_date": "d", "media": {}}
