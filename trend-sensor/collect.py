@@ -72,7 +72,9 @@ def collect_competitors(out_dir: str) -> None:
     new_videos = fetcher.fetch_all_channels(channels, days_back=7)
     for video in new_videos:
         cache.save_video(video)
-    transcripts.fetch_transcripts_for_corpus(new_videos)
+    # Fetch transcripts for the whole week's corpus, not just new videos,
+    # so videos skipped during an IP-block get retried on later runs.
+    transcripts.fetch_transcripts_for_corpus(cache.get_corpus_since(days=7))
     weekly_corpus = cache.get_corpus_since(days=7)
     formatted = corpus.format_corpus(weekly_corpus)
     meta = {

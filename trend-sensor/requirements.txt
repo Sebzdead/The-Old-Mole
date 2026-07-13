@@ -1,7 +1,7 @@
 google-api-python-client==2.131.0
 google-auth>=2.30
 google-auth-oauthlib>=1.2
-youtube-transcript-api==0.6.2
+youtube-transcript-api>=1.2
 PyYAML==6.0.1
 python-dateutil==2.9.0
 requests>=2.31
