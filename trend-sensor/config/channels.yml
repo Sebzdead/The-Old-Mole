@@ -1,31 +1,40 @@
+# Competitor YouTube channels.
+# core  = titles/descriptions + top audience comments in the weekly corpus
+# broad = titles/descriptions only
+# All IDs verified against the YouTube API on 2026-07-17.
 channels:
-  - id: UCOzMAa6IhV6uwYQATYG_2kg  # Novara Media
+  - id: UCOzMAa6IhV6uwYQATYG_2kg  # @novaramedia
     name: "Novara Media"
     tier: core
 
-  - id: UC-3jIAlnQmbbVMV6gR7K8aQ  # The Majority Report w/ Sam Seder
-    name: "The Majority Report"
-    tier: core
-
-  - id: UCJm2TgUqtK1_NLBrjNQ1P-w  # Second Thought
+  - id: UCJm2TgUqtK1_NLBrjNQ1P-w  # @secondthought
     name: "Second Thought"
     tier: core
 
-  - id: UC-AQKm7HUNMmxjdS371MSwg  # Channel 5 with Andrew Callaghan
-    name: "Channel 5 with Andrew Callaghan"
+  - id: UCK-6FjMu9OI8i0Fo6bkW0VA  # @democracyatwrk
+    name: "Democracy At Work"
     tier: core
 
-  - id: UCzuqE7-t13O4NIDYJfakrhw  # Democracy Now!
-    name: "Democracy Now!"
+  - id: UC29_uxOrUQR-vH2NhKyApSQ  # @besdmarx
+    name: "Bes D. Marx"
     tier: core
 
-  - id: UCJmlCcnfMlyPA2oSbb072QA  # Hakim
-    name: "Hakim"
-    tier: core
-
-  - id: UCSmOl7Hau-YX2VKfz1CMAZQ  # Current Affairs
+  - id: UCSmOl7Hau-YX2VKfz1CMAZQ  # @currentaffairsjournal
     name: "Current Affairs"
     tier: broad
+
+  - id: UCzGUT9PjV3SMBwjWXUYh4HA  # @jacobinmag (NOT @jacobin — impostor)
+    name: "Jacobin"
+    tier: broad
+
+  - id: UC-AQKm7HUNMmxjdS371MSwg  # @channel5withandrewcallaghan
+    name: "Channel 5"
+    tier: broad
+
+  - id: UCSkzHxIcfoEr69MWBdo0ppg  # @jonasceika
+    name: "Jonas Čeika - CCK Philosophy"
+    tier: broad
+
 # Competitor Instagram accounts (Business Discovery API — must be
 # professional accounts). Public metadata only: no comment text, no insights.
 instagram_competitors:
