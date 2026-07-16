@@ -3,6 +3,8 @@ import os
 
 import requests
 
+from src.redact import redact_secrets
+
 GRAPH_BASE = "https://graph.facebook.com/v21.0"
 
 MEDIA_FIELDS = (
@@ -55,7 +57,10 @@ def fetch_media_insights(media_id: str, token: str, media_product_type: str) -> 
             {"metric": metrics, "access_token": token},
         )
     except Exception as e:
-        print(f"Warning: insights fetch failed for media {media_id}: {e}")
+        print(
+            "Warning: insights fetch failed for media "
+            f"{media_id}: {redact_secrets(str(e))}"
+        )
         return {}
     out = {}
     for entry in data.get("data", []):
@@ -83,7 +88,10 @@ def fetch_media_comments(media_id: str, token: str, max_comments: int = 100) -> 
             url = data.get("paging", {}).get("next")
             params = {}
     except Exception as e:
-        print(f"Warning: comment fetch failed for media {media_id}: {e}")
+        print(
+            "Warning: comment fetch failed for media "
+            f"{media_id}: {redact_secrets(str(e))}"
+        )
     return comments[:max_comments]
 
 

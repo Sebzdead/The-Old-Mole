@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from dateutil.parser import isoparse
 from googleapiclient.discovery import build
 from src.cache import is_video_cached
+from src.redact import redact_secrets
 
 
 def get_youtube_client():
@@ -41,7 +42,8 @@ def get_channel_uploads(
         ]
     except Exception as e:
         print(
-            f"Warning: Failed to fetch channel details for {channel_name}: {e}"
+            f"Warning: Failed to fetch channel details for {channel_name}: "
+            f"{redact_secrets(str(e))}"
         )
         return []
 
@@ -100,7 +102,8 @@ def get_channel_uploads(
             page_count += 1
     except Exception as e:
         print(
-            f"Warning: Failed to retrieve videos for channel {channel_name}: {e}"
+            f"Warning: Failed to retrieve videos for channel {channel_name}: "
+            f"{redact_secrets(str(e))}"
         )
 
     return videos

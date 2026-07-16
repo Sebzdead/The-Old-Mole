@@ -114,3 +114,18 @@ def test_collect_instagram_competitors_skips_when_unconfigured(tmp_path, monkeyp
     import os
 
     assert not os.path.exists(tmp_path / "instagram_competitors.json")
+
+
+def test_run_source_redacts_credentials_in_errors():
+    statuses = {}
+
+    def boom():
+        raise RuntimeError(
+            "HttpError 403 https://x.com/v3?key=SECRETKEY&access_token=SECRETTOK&a=1"
+        )
+
+    collect.run_source(statuses, "s", boom)
+    err = statuses["s"]["error"]
+    assert "SECRETKEY" not in err
+    assert "SECRETTOK" not in err
+    assert "REDACTED" in err

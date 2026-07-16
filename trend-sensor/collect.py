@@ -2,8 +2,9 @@
 """
 Weekly data collector for The Old Mole intelligence report.
 
-Gathers competitor transcripts, own-channel YouTube analytics + comments,
-and Instagram insights + comments into trend-sensor/output/YYYY-MM-DD/.
+Gathers competitor video metadata + top comments, own-channel YouTube
+analytics + comments, and Instagram insights + comments into
+trend-sensor/output/YYYY-MM-DD/.
 Every source is isolated: a failure is recorded in run_meta.json statuses
 and the remaining sources still run (partial-report policy).
 
@@ -25,7 +26,7 @@ import yaml
 from dateutil.parser import isoparse
 from dotenv import load_dotenv
 
-from src import accounts, cache, corpus, fetcher, instagram, transcripts
+from src import accounts, cache, corpus, fetcher, instagram, redact
 from src import yt_analytics, yt_comments
 
 load_dotenv(os.path.join(REPO_ROOT, ".env"))
@@ -33,6 +34,7 @@ load_dotenv(os.path.join(REPO_ROOT, ".env"))
 OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "output")
 SNAPSHOT_PATH = os.path.join(PROJECT_ROOT, "state", "ig_snapshot.json")
 COMMENTS_PER_POST = 100
+COMPETITOR_COMMENTS_PER_VIDEO = 25
 
 
 def reporting_windows(today: date) -> dict:
@@ -60,7 +62,10 @@ def run_source(statuses: dict, name: str, fn):
         return result
     except Exception as e:
         traceback.print_exc()
-        statuses[name] = {"ok": False, "error": f"{type(e).__name__}: {e}"}
+        statuses[name] = {
+            "ok": False,
+            "error": redact.redact_secrets(f"{type(e).__name__}: {e}"),
+        }
         return None
 
 
@@ -72,10 +77,17 @@ def collect_competitors(out_dir: str) -> None:
     new_videos = fetcher.fetch_all_channels(channels, days_back=7)
     for video in new_videos:
         cache.save_video(video)
-    # Fetch transcripts for the whole week's corpus, not just new videos,
-    # so videos skipped during an IP-block get retried on later runs.
-    transcripts.fetch_transcripts_for_corpus(cache.get_corpus_since(days=7))
     weekly_corpus = cache.get_corpus_since(days=7)
+    # Core-tier videos get top audience comments (Data API, quota-cheap);
+    # transcripts are deliberately not used (titles/descriptions suffice).
+    data_client = fetcher.get_youtube_client()
+    for video in weekly_corpus:
+        if video.get("tier") == "core":
+            video["comments"] = yt_comments.fetch_comments(
+                data_client,
+                video["video_id"],
+                max_comments=COMPETITOR_COMMENTS_PER_VIDEO,
+            )
     formatted = corpus.format_corpus(weekly_corpus)
     meta = {
         "video_count": len(weekly_corpus),
@@ -202,7 +214,10 @@ def collect_instagram_competitors(
                 ig_user_id, token, username
             )
         except Exception as e:
-            print(f"Warning: business discovery failed for {username}: {e}")
+            print(
+                "Warning: business discovery failed for "
+                f"{username}: {redact.redact_secrets(str(e))}"
+            )
             errors[username] = f"{type(e).__name__}: {e}"
             continue
         media = (profile.get("media") or {}).get("data", [])

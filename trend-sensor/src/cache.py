@@ -32,15 +32,6 @@ def init_db():
             )
         """)
 
-        # Create transcripts table
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS transcripts (
-                video_id TEXT PRIMARY KEY REFERENCES videos(video_id),
-                transcript_text TEXT,
-                word_count INTEGER,
-                fetched_at TEXT
-            )
-        """)
         conn.commit()
 
 
@@ -77,49 +68,19 @@ def save_video(video: dict):
         conn.commit()
 
 
-def is_transcript_cached(video_id: str) -> bool:
-    """Checks if a transcript is already in the database cache."""
-    with get_db_connection() as conn:
-        row = conn.execute(
-            "SELECT 1 FROM transcripts WHERE video_id = ?", (video_id,)
-        ).fetchone()
-        return row is not None
-
-
-def save_transcript(video_id: str, text: str):
-    """Saves transcript text and computes word count."""
-    fetched_at = datetime.utcnow().isoformat()
-    word_count = len(text.split()) if text else 0
-    with get_db_connection() as conn:
-        conn.execute(
-            """
-            INSERT OR REPLACE INTO transcripts (
-                video_id, transcript_text, word_count, fetched_at
-            ) VALUES (?, ?, ?, ?)
-        """,
-            (video_id, text, word_count, fetched_at),
-        )
-        conn.commit()
-
-
 def get_corpus_since(days: int) -> list[dict]:
-    """
-    Returns joined rows for all videos published within the last N days,
-    including transcript text if available.
-    """
+    """Returns all videos published within the last N days."""
     query = """
         SELECT
-            v.video_id,
-            v.channel_name,
-            v.title,
-            v.description,
-            v.published_at,
-            v.tier,
-            t.transcript_text
-        FROM videos v
-        LEFT JOIN transcripts t ON v.video_id = t.video_id
-        WHERE datetime(v.published_at) >= datetime('now', ?)
-        ORDER BY v.published_at DESC
+            video_id,
+            channel_name,
+            title,
+            description,
+            published_at,
+            tier
+        FROM videos
+        WHERE datetime(published_at) >= datetime('now', ?)
+        ORDER BY published_at DESC
     """
     with get_db_connection() as conn:
         cursor = conn.execute(query, (f"-{days} days",))

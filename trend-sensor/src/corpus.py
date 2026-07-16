@@ -1,68 +1,67 @@
+DESCRIPTION_WORD_LIMIT = 150
+COMMENT_WORD_LIMIT = 40
+WORD_BUDGET = 80000
+
+
+def _truncate(text: str | None, limit: int) -> str:
+    words = (text or "").split()
+    return " ".join(words[:limit])
+
+
 def format_corpus(corpus: list[dict]) -> str:
     """
-    Formats the corpus as a structured plaintext block for the LLM.
-    Groups by tier and limits total word count to approximately 80,000 words
-    by dropping broad-tier entries first (oldest first), then oldest core entries.
+    Formats the competitor corpus as a structured plaintext block for the
+    LLM: title, truncated description, and (for core-tier videos) top
+    audience comments. No transcripts. Limits total size to approximately
+    80,000 words by dropping oldest broad-tier entries first, then oldest
+    core entries.
     """
     core_entries = []
     broad_entries = []
 
     for video in corpus:
-        video_id = video.get("video_id", "")
         channel_name = video.get("channel_name", "")
         title = video.get("title", "")
         published_at = video.get("published_at", "")
         tier = video.get("tier", "broad")
+        description = _truncate(video.get("description"), DESCRIPTION_WORD_LIMIT)
 
+        lines = [f"--- {channel_name} | {title} | {published_at}", description]
         if tier == "core":
-            transcript_text = video.get("transcript_text") or ""
-            content = f"--- {channel_name} | {title} | {published_at}\n{transcript_text}\n"
-            word_count = len(content.split())
-            core_entries.append(
-                {
-                    "video_id": video_id,
-                    "published_at": published_at,
-                    "content": content,
-                    "word_count": word_count,
-                }
-            )
-        else:
-            description = video.get("description") or ""
-            desc_words = description.split()
-            truncated_desc = " ".join(desc_words[:150])
-            content = f"--- {channel_name} | {title} | {published_at}\n{truncated_desc}\n"
-            word_count = len(content.split())
-            broad_entries.append(
-                {
-                    "video_id": video_id,
-                    "published_at": published_at,
-                    "content": content,
-                    "word_count": word_count,
-                }
-            )
+            comments = video.get("comments") or []
+            if comments:
+                lines.append("TOP COMMENTS:")
+                for comment in comments:
+                    text = _truncate(comment.get("text"), COMMENT_WORD_LIMIT)
+                    lines.append(f"- ({comment.get('like_count', 0)} likes) {text}")
+        content = "\n".join(lines) + "\n"
+
+        entry = {
+            "published_at": published_at,
+            "content": content,
+            "word_count": len(content.split()),
+        }
+        (core_entries if tier == "core" else broad_entries).append(entry)
 
     # Sort both lists by published_at descending (newest first)
     core_entries.sort(key=lambda x: x["published_at"], reverse=True)
     broad_entries.sort(key=lambda x: x["published_at"], reverse=True)
 
-    # Calculate total word count helper
-    def get_total_words(cores, broads):
-        return sum(x["word_count"] for x in cores) + sum(
-            x["word_count"] for x in broads
+    def get_total_words():
+        return sum(x["word_count"] for x in core_entries) + sum(
+            x["word_count"] for x in broad_entries
         )
 
-    initial_word_count = get_total_words(core_entries, broad_entries)
+    initial_word_count = get_total_words()
     dropped_broad = 0
     dropped_core = 0
 
-    # Truncate if we exceed 80,000 words
-    while get_total_words(core_entries, broad_entries) > 80000:
+    while get_total_words() > WORD_BUDGET:
         if broad_entries:
-            # Drop oldest broad-tier entry (from the end of descending sorted list)
+            # Drop oldest broad-tier entry (end of descending sorted list)
             broad_entries.pop()
             dropped_broad += 1
         elif core_entries:
-            # Drop oldest core-tier entry (from the end of descending sorted list)
             core_entries.pop()
             dropped_core += 1
         else:
@@ -70,15 +69,14 @@ def format_corpus(corpus: list[dict]) -> str:
 
     if dropped_broad > 0 or dropped_core > 0:
         print(
-            f"Warning: Corpus exceeded 80,000 words (initial: {initial_word_count}). "
+            f"Warning: Corpus exceeded {WORD_BUDGET} words (initial: {initial_word_count}). "
             f"Truncated by dropping {dropped_broad} broad entries and {dropped_core} core entries."
         )
 
-    # Reconstruct grouped corpus
     output_lines = []
 
     if core_entries:
-        output_lines.append("=== CORE VIDEOS (FULL TRANSCRIPTS) ===")
+        output_lines.append("=== CORE VIDEOS (METADATA + TOP COMMENTS) ===")
         for entry in core_entries:
             output_lines.append(entry["content"])
 

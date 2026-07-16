@@ -1,3 +1,6 @@
+from src.redact import redact_secrets
+
+
 def fetch_comments(youtube, video_id: str, max_comments: int = 100) -> list[dict]:
     """
     Fetches top-level comments for a video, ordered by relevance,
@@ -37,5 +40,8 @@ def fetch_comments(youtube, video_id: str, max_comments: int = 100) -> list[dict
             if not page_token:
                 break
     except Exception as e:
-        print(f"Warning: comment fetch failed for {video_id}: {e}")
+        print(
+            "Warning: comment fetch failed for "
+            f"{video_id}: {redact_secrets(str(e))}"
+        )
     return comments[:max_comments]

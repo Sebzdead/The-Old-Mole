@@ -8,7 +8,10 @@ collector has already run; your job is analysis and writing.
 Read the newest directory under `trend-sensor/output/` (named `YYYY-MM-DD`):
 
 - `run_meta.json` — run date, reporting windows, and per-source `statuses`.
-- `competitor_corpus.md` — formatted competitor transcripts/metadata.
+- `competitor_corpus.md` — formatted competitor video metadata: titles,
+  descriptions, and (for core-tier channels) top audience comments. No
+  transcripts — analyze themes and framing from titles, descriptions,
+  and the audience reaction in the comments.
 - `competitor_meta.json` — video/channel counts.
 - `own_youtube.json` — channel week metrics (this + prev week), traffic
   sources, recent uploads (each with `metrics` and `comments`), and
