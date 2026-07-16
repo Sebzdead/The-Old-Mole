@@ -36,3 +36,4 @@ trend-sensor/output/
 
 # Google OAuth client file used by scripts/get_yt_refresh_token.py
 client_secret.json
+.DS_Store
