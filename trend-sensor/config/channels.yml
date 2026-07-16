@@ -26,3 +26,7 @@ channels:
   - id: UCSmOl7Hau-YX2VKfz1CMAZQ  # Current Affairs
     name: "Current Affairs"
     tier: broad
+# Competitor Instagram accounts (Business Discovery API — must be
+# professional accounts). Public metadata only: no comment text, no insights.
+instagram_competitors:
+  - novaramedia

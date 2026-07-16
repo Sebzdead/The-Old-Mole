@@ -15,6 +15,11 @@ Read the newest directory under `trend-sensor/output/` (named `YYYY-MM-DD`):
   `back_catalog_movers`.
 - `instagram.json` — recent posts (each with `insights` and `comments`),
   `back_catalog_movers`, and `permalinks`.
+- `instagram_competitors.json` — may be absent. Competitor Instagram
+  profiles via Business Discovery: `profiles` (username, followers_count,
+  media_count, recent_posts with caption/like_count/comments_count/
+  permalink) and per-account `errors`. Public metadata only — competitor
+  comment text and insights are not available via the API.
 
 ## Ground rules
 
@@ -105,6 +110,13 @@ channels that touched the theme, cells = a 2-5 word framing/tone
 descriptor (e.g. "doomer explainer", "organizing-focused", "polemic",
 "electoral horse-race", "ironic/meme"). Present the matrix RAW: no
 commentary, no recommendations, no "gap" analysis in this section.
+
+If `instagram_competitors.json` exists and has profiles, add
+`### Instagram competitor pulse`: one line per account — followers,
+posts this week, and the standout post (caption first ~60 chars,
+like/comment counts, permalink). Present raw, no commentary. Note any
+accounts listed under `errors` in one line. Omit the whole subsection
+when the file is absent or has no profiles.
 
 ### 5. `## Podcast Angles`
 

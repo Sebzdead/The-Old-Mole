@@ -153,3 +153,28 @@ def save_snapshot(path: str, snapshot: dict) -> None:
         os.makedirs(directory, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(snapshot, f, indent=2)
+
+
+BUSINESS_DISCOVERY_MEDIA_FIELDS = (
+    "caption,media_product_type,timestamp,permalink,like_count,comments_count"
+)
+
+
+def fetch_business_discovery(
+    ig_user_id: str, token: str, username: str, media_limit: int = 25
+) -> dict:
+    """
+    Public profile info and recent media of ANOTHER professional account,
+    via the Business Discovery API. Raises on error (e.g. the target is
+    not a Business/Creator account) — the collector isolates per-username.
+    """
+    fields = (
+        f"business_discovery.username({username})"
+        f"{{username,followers_count,media_count,"
+        f"media.limit({media_limit}){{{BUSINESS_DISCOVERY_MEDIA_FIELDS}}}}}"
+    )
+    data = _get(
+        f"{GRAPH_BASE}/{ig_user_id}",
+        {"fields": fields, "access_token": token},
+    )
+    return data.get("business_discovery", {})

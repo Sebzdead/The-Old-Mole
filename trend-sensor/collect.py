@@ -168,6 +168,68 @@ def collect_instagram(out_dir: str, ig_user_id: str, run_date: str) -> None:
         json.dump(payload, f, indent=2)
 
 
+CHANNELS_CONFIG_PATH = os.path.join(PROJECT_ROOT, "config", "channels.yml")
+
+
+def load_instagram_competitors(path: str = CHANNELS_CONFIG_PATH) -> list[str]:
+    """Competitor Instagram usernames from channels.yml (may be absent)."""
+    with open(path, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f) or {}
+    return config.get("instagram_competitors") or []
+
+
+def collect_instagram_competitors(
+    out_dir: str, ig_user_id: str, usernames: list[str]
+) -> None:
+    """
+    Public metadata for competitor Instagram accounts via Business
+    Discovery. One failing username never blocks the others; the run
+    fails only when every configured account fails. Writes no file when
+    no competitors are configured.
+    """
+    if not usernames:
+        return
+    token = os.environ.get("IG_ACCESS_TOKEN")
+    if not token:
+        raise RuntimeError("IG_ACCESS_TOKEN environment variable is not set.")
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+    profiles = []
+    errors = {}
+    for username in usernames:
+        try:
+            profile = instagram.fetch_business_discovery(
+                ig_user_id, token, username
+            )
+        except Exception as e:
+            print(f"Warning: business discovery failed for {username}: {e}")
+            errors[username] = f"{type(e).__name__}: {e}"
+            continue
+        media = (profile.get("media") or {}).get("data", [])
+        recent = [
+            m for m in media
+            if m.get("timestamp") and isoparse(m["timestamp"]) >= cutoff
+        ]
+        profiles.append(
+            {
+                "username": profile.get("username", username),
+                "followers_count": profile.get("followers_count"),
+                "media_count": profile.get("media_count"),
+                "recent_posts": recent,
+            }
+        )
+
+    if not profiles:
+        raise RuntimeError(
+            f"Business discovery failed for all configured accounts: {errors}"
+        )
+
+    payload = {"profiles": profiles, "errors": errors}
+    path = os.path.join(out_dir, "instagram_competitors.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+
+
 def main():
     run_date = date.today().isoformat()
     windows = reporting_windows(date.today())
@@ -193,6 +255,15 @@ def main():
             "instagram",
             lambda: collect_instagram(
                 out_dir, account_config["instagram_user_id"], run_date
+            ),
+        )
+        run_source(
+            statuses,
+            "instagram_competitors",
+            lambda: collect_instagram_competitors(
+                out_dir,
+                account_config["instagram_user_id"],
+                load_instagram_competitors(),
             ),
         )
     else:

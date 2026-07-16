@@ -32,6 +32,9 @@ The routine runs locally via the Claude app's scheduled tasks (Mondays
 4. Fill `trend-sensor/config/accounts.yml` (own channel ID, IG user ID).
 5. Competitor channels: edit `trend-sensor/config/channels.yml`
    (`core` = transcripts analyzed; `broad` = titles/descriptions only).
+   The same file's `instagram_competitors` list adds competitor Instagram
+   accounts (public metadata via Business Discovery; professional
+   accounts only).
 6. Test: `python trend-sensor/collect.py` and check
    `trend-sensor/output/<today>/run_meta.json`.
 
