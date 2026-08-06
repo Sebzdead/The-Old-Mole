@@ -154,23 +154,39 @@ thread, no splitting.
 
 Body, in this order:
 
-1. `**The Old Mole — Weekly Intelligence Report, {run_date}**`
-2. The report link on its own line:
-   `https://github.com/Sebzdead/The-Old-Mole/blob/main/trend-sensor/digests/{run_date}.md`
+1. `**The Old Mole — Weekly Intelligence Report — {run_date}**`
+2. `_Window {this_start} → {this_end} · prev {prev_start} → {prev_end} · {one clause on source health}_`
+3. `[Read the full report](https://github.com/Sebzdead/The-Old-Mole/blob/main/trend-sensor/digests/{run_date}.md)`
    Include it ONLY if the push succeeded. If the push failed or there was
    nothing to commit, replace the link with:
    `_Committed locally as {short_sha} — not pushed, so the link is not live yet._`
-3. Every warning banner, one `⚠️ ...` line each.
-4. The TL;DR bullets verbatim.
-5. `_Full report also covers: Our Week · Our Audience · The Landscape · Podcast Angles._`
+4. Every warning banner, one `⚠️ ...` line each.
+5. The TL;DR, **regrouped for Slack — do not paste it verbatim.** Three
+   labelled blocks in this order, each introduced by a bold line and
+   holding at most four bullets:
+   - `**📈 Our week**` — open with the headline metrics as a single `>`
+     blockquote (views, watch time, avg duration, net subs, each with its
+     % change), then bullets for the performance stories.
+   - `**🗣 Audience**` — what viewers asked for, complained about, or
+     pushed back on.
+   - `**🌍 Landscape**` — themes multiple competitor channels circled.
+   Drop a block entirely if the week produced no genuine signal for it.
+6. `_Full report: Our Week · Our Audience · The Landscape · Podcast Angles_`
 
 Rules:
 
-- The connector takes standard markdown, so the digest's `**bold**` and
-  `[text](url)` paste through unchanged. Do not rewrite them.
-- Keep the message under 4,500 characters. If the TL;DR pushes past that,
-  drop bullets from the bottom and append
-  `_…{n} more bullets in the full report._` Never truncate mid-bullet.
+- The connector takes standard markdown, so `**bold**`, `_italic_`,
+  `> quote` and `[text](url)` all work.
+- **One line per bullet, two at the absolute most.** Slack has no column
+  width — a three-line bullet is a wall.
+- Open each bullet with a bold label of six words or fewer that states
+  the finding on its own, then ` — `, then the evidence. Bold spanning
+  half a sentence highlights nothing.
+- Round the numbers here (+227%, 305k watch-minutes); the digest keeps
+  the precise figures. Quotes inside bullets: 12 words maximum.
+- Keep the message under 4,500 characters. If it runs over, cut whole
+  bullets from the bottom of each block and append
+  `_…more in the full report._` Never truncate mid-bullet.
 - In the collector-failure branch (empty report), still post: the
   heading, the banners, and the one-line explanation of what failed.
   There is no TL;DR to include.
