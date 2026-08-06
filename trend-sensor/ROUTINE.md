@@ -141,5 +141,39 @@ numbers. No preamble, no meta-commentary about your process.
    message. If the push is rejected, `git pull --rebase` once and retry;
    if it still fails, report the failure in your completion message
    rather than stopping silently.
-3. Your completion message must be the TL;DR section verbatim, prefixed
-   by any warning banners.
+3. Post the Slack notification (see below).
+4. Your completion message must be the TL;DR section verbatim, prefixed
+   by any warning banners, then one line on push and Slack outcomes.
+
+## Slack notification
+
+Post the report to the RCI Media Team workspace, channel `#weekly-report`
+(`channel_id: C0BNN5Y683E`), using the Slack connector's
+`slack_send_message` with `unfurl_app_links: true`. One message, no
+thread, no splitting.
+
+Body, in this order:
+
+1. `**The Old Mole — Weekly Intelligence Report, {run_date}**`
+2. The report link on its own line:
+   `https://github.com/Sebzdead/The-Old-Mole/blob/main/trend-sensor/digests/{run_date}.md`
+   Include it ONLY if the push succeeded. If the push failed or there was
+   nothing to commit, replace the link with:
+   `_Committed locally as {short_sha} — not pushed, so the link is not live yet._`
+3. Every warning banner, one `⚠️ ...` line each.
+4. The TL;DR bullets verbatim.
+5. `_Full report also covers: Our Week · Our Audience · The Landscape · Podcast Angles._`
+
+Rules:
+
+- The connector takes standard markdown, so the digest's `**bold**` and
+  `[text](url)` paste through unchanged. Do not rewrite them.
+- Keep the message under 4,500 characters. If the TL;DR pushes past that,
+  drop bullets from the bottom and append
+  `_…{n} more bullets in the full report._` Never truncate mid-bullet.
+- In the collector-failure branch (empty report), still post: the
+  heading, the banners, and the one-line explanation of what failed.
+  There is no TL;DR to include.
+- If the send fails, retry once. If it fails again, report it in your
+  completion message and move on — a Slack failure never blocks or
+  changes the commit.
