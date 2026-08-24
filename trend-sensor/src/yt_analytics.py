@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -147,3 +148,30 @@ def back_catalog_movers(
             )
     movers.sort(key=lambda m: m["views_this_week"], reverse=True)
     return movers[:top_n]
+
+
+def latest_data_date(client, today, lookback_days: int = 14) -> str | None:
+    """
+    The most recent date YouTube Analytics actually has finalized data for.
+
+    The reporting lag is not a fixed 48h — it drifts, and querying past the
+    last available day silently returns a short window rather than an error,
+    which makes the current week look smaller than the one before it. Probing
+    for the real boundary keeps both comparison windows the same length.
+    Returns None when the probe returns no rows at all.
+    """
+    start = (today - timedelta(days=lookback_days)).isoformat()
+    response = (
+        client.reports()
+        .query(
+            ids="channel==MINE",
+            startDate=start,
+            endDate=today.isoformat(),
+            metrics="views",
+            dimensions="day",
+            sort="day",
+        )
+        .execute()
+    )
+    rows = response.get("rows", []) or []
+    return rows[-1][0] if rows else None

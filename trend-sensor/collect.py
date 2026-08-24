@@ -37,12 +37,18 @@ COMMENTS_PER_POST = 100
 COMPETITOR_COMMENTS_PER_VIDEO = 25
 
 
-def reporting_windows(today: date) -> dict:
+def reporting_windows(today: date, anchor_end: str | None = None) -> dict:
     """
-    Analytics data lags ~48h, so the report window is today-8 .. today-2,
-    with the preceding 7 days as the comparison window for movers.
+    Both comparison windows are 7 days, ending at the last day analytics
+    actually has data for.
+
+    Passing anchor_end (from yt_analytics.latest_data_date) pins the window
+    to real data availability. Without it we fall back to assuming a 48h
+    lag, which under-reports the current week whenever the true lag is
+    longer: the API silently returns a short window instead of an error, so
+    a 6-day "this week" gets compared against a full 7-day "prev week".
     """
-    this_end = today - timedelta(days=2)
+    this_end = date.fromisoformat(anchor_end) if anchor_end else today - timedelta(days=2)
     this_start = this_end - timedelta(days=6)
     prev_end = this_start - timedelta(days=1)
     prev_start = prev_end - timedelta(days=6)
@@ -245,9 +251,25 @@ def collect_instagram_competitors(
         json.dump(payload, f, indent=2)
 
 
+def resolve_anchor_end(today: date) -> str | None:
+    """Last day with analytics data, or None if the probe fails."""
+    try:
+        return yt_analytics.latest_data_date(
+            yt_analytics.get_analytics_client(), today
+        )
+    except Exception as e:
+        print(
+            "Warning: could not probe analytics data availability, falling "
+            f"back to a fixed 48h lag: {redact.redact_secrets(str(e))}"
+        )
+        return None
+
+
 def main():
-    run_date = date.today().isoformat()
-    windows = reporting_windows(date.today())
+    today = date.today()
+    run_date = today.isoformat()
+    anchor_end = resolve_anchor_end(today)
+    windows = reporting_windows(today, anchor_end)
     out_dir = os.path.join(OUTPUT_ROOT, run_date)
     os.makedirs(out_dir, exist_ok=True)
 
@@ -288,6 +310,10 @@ def main():
     run_meta = {
         "run_date": run_date,
         "windows": windows,
+        "analytics_last_data_date": anchor_end,
+        "analytics_lag_days": (
+            (today - date.fromisoformat(anchor_end)).days if anchor_end else None
+        ),
         "statuses": statuses,
         "output_dir": out_dir,
     }

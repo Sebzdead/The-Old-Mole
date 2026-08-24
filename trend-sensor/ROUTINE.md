@@ -7,7 +7,10 @@ collector has already run; your job is analysis and writing.
 
 Read the newest directory under `trend-sensor/output/` (named `YYYY-MM-DD`):
 
-- `run_meta.json` — run date, reporting windows, and per-source `statuses`.
+- `run_meta.json` — run date, reporting windows, per-source `statuses`, and
+  `analytics_last_data_date` / `analytics_lag_days` (the last day YouTube
+  Analytics had finalized data; the windows are anchored to it, so both the
+  current and comparison week are always the same length).
 - `competitor_corpus.md` — formatted competitor video metadata: titles,
   descriptions, and (for core-tier channels) top audience comments. No
   transcripts — analyze themes and framing from titles, descriptions,
@@ -39,7 +42,7 @@ Read the newest directory under `trend-sensor/output/` (named `YYYY-MM-DD`):
 
 If `run_meta.json` is missing, or EVERY source status is `"ok": false`,
 do not fabricate analysis: write only the header and warning banners plus
-one line explaining that collection failed, skip all five analysis
+one line explaining that collection failed, skip all seven analysis
 sections, still commit (so the failure is visible in history), and say
 plainly in your completion message that this week's report is empty and
 why. If only SOME sources failed, keep every mandated H2 heading: for a
@@ -51,7 +54,12 @@ instead.
 
 ## Output
 
-Write `trend-sensor/digests/{run_date}.md` with EXACTLY these five sections:
+Write `trend-sensor/digests/{run_date}.md` with EXACTLY these seven sections.
+
+YouTube and Instagram are never merged. Each platform gets its own H2 for
+performance and its own H2 for audience, and YouTube always comes first.
+Cross-platform comparison belongs only in the TL;DR and in the
+cross-cutting audience subsection — never inside a platform's own section.
 
 ### 0. Header and warning banners
 
@@ -64,39 +72,70 @@ immediately under the title:
 
 ### 1. `## TL;DR`
 
-At most 10 bullets. The single most important takeaways across all
-sections: biggest performance story, loudest audience signal, most
-significant landscape shift, top content opportunity. Every bullet must be
-specific (name the video/post/theme and the number that matters).
-Cover a category only when there is a genuine signal — never pad toward
-10 bullets.
+At most 10 bullets total, grouped under three bold labels in this order —
+`**YouTube**`, `**Instagram**`, `**Landscape**` — with a blank line between
+groups. No bullet mixes platforms except a deliberate cross-platform
+comparison, which goes last inside the Instagram group.
 
-### 2. `## Our Week`
+The single most important takeaways: biggest performance story per
+platform, loudest audience signal, most significant landscape shift, top
+content opportunity. Every bullet must be specific (name the video/post/
+theme and the number that matters). Cover a group only when there is a
+genuine signal — drop the label entirely if a platform did nothing this
+week, and never pad toward 10 bullets.
+
+### 2. `## Our Week — YouTube`
 
 - Channel table: this week vs. prev week (views, watch time, avg view
   duration, subs gained/lost) with % change.
 - Traffic sources: top 3 with view counts.
-- Per recent upload (YouTube, then Instagram): title/caption (first ~60
-  chars), key metrics inline. Order by views/reach descending.
-- `### Back-catalog movers`: each mover with its numbers and permalink/URL.
-  If none: "No unusual back-catalog activity this week."
-  For YouTube movers, build the URL as
-  `https://www.youtube.com/watch?v={video_id}`.
+- Per recent upload: title (first ~60 chars), key metrics inline, ordered
+  by views descending.
+- `### Back-catalog movers — YouTube`: each mover with its numbers and URL,
+  built as `https://www.youtube.com/watch?v={video_id}`. If none: "No
+  unusual back-catalog activity this week."
 - Note: impressions/CTR are not available via API (YouTube Studio only).
+- Note: view counts here are **window-scoped and lag-bounded** — they count
+  only the days in the reporting window that analytics has finalized data
+  for, which `run_meta.json` reports as `analytics_last_data_date`. YouTube
+  Studio's list view shows *lifetime* views including the still-unfinalized
+  last few days, so for a video published mid-window Studio will read
+  substantially higher. This is not an undercount; the two numbers answer
+  different questions. State the window in the section so the difference is
+  never mistaken for a collection error.
 
-### 3. `## Our Audience`
+### 3. `## Our Week — Instagram`
 
-For each recent post that has comments (skip posts with none):
+- Per recent post: caption (first ~60 chars), key metrics inline (reach,
+  views, likes, comments, shares, saves), ordered by reach descending.
+- `### Back-catalog movers — Instagram`: each mover with its engagement
+  delta and permalink. If none: "No unusual back-catalog activity this
+  week."
+
+### 4. `## Our Audience — YouTube`
+
+### 5. `## Our Audience — Instagram`
+
+Both sections take the same form. For each recent post on that platform
+that has comments (skip posts with none):
 - Sentiment split: rough % positive / negative / mixed-neutral.
 - 3-5 recurring comment clusters, each with a one-line label and ONE
   representative quote (verbatim, ≤25 words).
 - Standout comments worth acting on: substantive critiques, questions
   worth answering, and explicit content requests.
 
-End with `### Cross-cutting audience signals`: 2-4 bullets on patterns
-appearing across multiple posts/platforms.
+When a platform has more commented posts than that treatment can carry at
+readable length, give the full treatment to the posts with genuine
+discussion and cover the remainder in one compact table (post, comment
+count, sentiment, notable line). Never silently drop a commented post, and
+say in one line that you grouped them.
 
-### 4. `## The Landscape`
+End the **Instagram** section — as the second of the two — with
+`### Cross-cutting audience signals`: 2-4 bullets on patterns appearing
+across multiple posts or across both platforms. This is the only place in
+the two audience sections where platforms may be discussed together.
+
+### 6. `## The Landscape`
 
 Analyze `competitor_corpus.md` for 6-10 structural themes, exactly as the
 podcast's analytical tradition demands: not news summaries but underlying
@@ -121,12 +160,12 @@ like/comment counts, permalink). Present raw, no commentary. Note any
 accounts listed under `errors` in one line. Omit the whole subsection
 when the file is absent or has no profiles.
 
-### 5. `## Podcast Angles`
+### 7. `## Podcast Angles`
 
 3-6 concrete episode angles connecting the landscape themes to what OUR
-audience is asking for (from Our Audience). Each: a framing/question that
-makes for Marxist analysis rather than liberal commentary, plus one line
-on why now.
+audience is asking for (from the two Our Audience sections). Each: a
+framing/question that makes for Marxist analysis rather than liberal
+commentary, plus one line on why now.
 
 ## Style
 
@@ -161,17 +200,19 @@ Body, in this order:
    nothing to commit, replace the link with:
    `_Committed locally as {short_sha} — not pushed, so the link is not live yet._`
 4. Every warning banner, one `⚠️ ...` line each.
-5. The TL;DR, **regrouped for Slack — do not paste it verbatim.** Three
+5. The TL;DR, **regrouped for Slack — do not paste it verbatim.** Four
    labelled blocks in this order, each introduced by a bold line and
-   holding at most four bullets:
-   - `**📈 Our week**` — open with the headline metrics as a single `>`
-     blockquote (views, watch time, avg duration, net subs, each with its
-     % change), then bullets for the performance stories.
+   holding at most three bullets:
+   - `**📺 YouTube**` — open with the channel headline metrics as a single
+     `>` blockquote (views, watch time, avg duration, net subs, each with
+     its % change), then bullets for the performance stories.
+   - `**📸 Instagram**` — post reach/engagement stories. A cross-platform
+     comparison, if there is one worth making, goes here as the last bullet.
    - `**🗣 Audience**` — what viewers asked for, complained about, or
-     pushed back on.
+     pushed back on, labelled by platform where it matters.
    - `**🌍 Landscape**` — themes multiple competitor channels circled.
    Drop a block entirely if the week produced no genuine signal for it.
-6. `_Full report: Our Week · Our Audience · The Landscape · Podcast Angles_`
+6. `_Full report: YouTube · Instagram · Audience · Landscape · Podcast Angles_`
 
 Rules:
 

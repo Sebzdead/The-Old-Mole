@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 import collect
 
@@ -9,6 +9,32 @@ def test_reporting_windows_account_for_analytics_lag():
     assert win["this_end"] == "2026-07-11"
     assert win["prev_start"] == "2026-06-28"
     assert win["prev_end"] == "2026-07-04"
+
+
+def test_reporting_windows_anchor_to_real_data_availability():
+    # Lag is 3 days, not the assumed 2: the window must shift back a day
+    # rather than reaching past the last day with data.
+    win = collect.reporting_windows(date(2026, 8, 24), anchor_end="2026-08-21")
+    assert win["this_start"] == "2026-08-15"
+    assert win["this_end"] == "2026-08-21"
+    assert win["prev_start"] == "2026-08-08"
+    assert win["prev_end"] == "2026-08-14"
+
+
+def test_reporting_windows_are_always_equal_length():
+    for anchor in (None, "2026-08-21", "2026-08-19"):
+        win = collect.reporting_windows(date(2026, 8, 24), anchor_end=anchor)
+        this_len = date.fromisoformat(win["this_end"]) - date.fromisoformat(
+            win["this_start"]
+        )
+        prev_len = date.fromisoformat(win["prev_end"]) - date.fromisoformat(
+            win["prev_start"]
+        )
+        assert this_len == prev_len == timedelta(days=6)
+        # windows must abut, never overlap
+        assert date.fromisoformat(win["prev_end"]) + timedelta(days=1) == (
+            date.fromisoformat(win["this_start"])
+        )
 
 
 def test_run_source_records_success_and_failure():
