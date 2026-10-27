@@ -12,7 +12,7 @@ CHANNEL_METRICS = (
 )
 VIDEO_METRICS = (
     "views,estimatedMinutesWatched,averageViewDuration,"
-    "averageViewPercentage,likes,comments,shares"
+    "averageViewPercentage,likes,comments,shares,subscribersGained"
 )
 
 
@@ -175,3 +175,72 @@ def latest_data_date(client, today, lookback_days: int = 14) -> str | None:
     )
     rows = response.get("rows", []) or []
     return rows[-1][0] if rows else None
+
+
+DAILY_CHANNEL_METRICS = (
+    "views,estimatedMinutesWatched,likes,comments,subscribersGained,subscribersLost"
+)
+
+
+def channel_daily_metrics(client, start_date: str, end_date: str) -> list[dict]:
+    """Channel-wide metrics per day, oldest first: [{"day": iso, ...}]."""
+    response = (
+        client.reports()
+        .query(
+            ids="channel==MINE",
+            startDate=start_date,
+            endDate=end_date,
+            metrics=DAILY_CHANNEL_METRICS,
+            dimensions="day",
+            sort="day",
+        )
+        .execute()
+    )
+    return _rows_as_dicts(response)
+
+
+def lifetime_subscribers(client, end_date: str) -> int:
+    """
+    Exact subscriber count on end_date: lifetime gained minus lost. The Data
+    API's subscriberCount is rounded to three significant figures.
+    """
+    response = (
+        client.reports()
+        .query(
+            ids="channel==MINE",
+            startDate="2005-01-01",
+            endDate=end_date,
+            metrics="subscribersGained,subscribersLost",
+        )
+        .execute()
+    )
+    rows = _rows_as_dicts(response)
+    if not rows:
+        return 0
+    return rows[0]["subscribersGained"] - rows[0]["subscribersLost"]
+
+
+def video_daily_views(
+    client, video_ids: list[str], start_date: str, end_date: str
+) -> dict[str, dict[str, int]]:
+    """Daily views per video: {video_id: {iso_day: views}}."""
+    if not video_ids:
+        return {}
+    response = (
+        client.reports()
+        .query(
+            ids="channel==MINE",
+            startDate=start_date,
+            endDate=end_date,
+            metrics="views",
+            dimensions="video,day",
+            filters="video==" + ",".join(video_ids),
+            sort="day",
+            maxResults=10000,
+        )
+        .execute()
+    )
+    out: dict[str, dict[str, int]] = {}
+    for row in _rows_as_dicts(response):
+        out.setdefault(row["video"], {})[row["day"]] = row["views"]
+    return out

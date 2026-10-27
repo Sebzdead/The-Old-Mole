@@ -1,5 +1,7 @@
 import json
 import os
+from datetime import date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -163,26 +165,76 @@ def save_snapshot(path: str, snapshot: dict) -> None:
         json.dump(snapshot, f, indent=2)
 
 
-BUSINESS_DISCOVERY_MEDIA_FIELDS = (
-    "caption,media_product_type,timestamp,permalink,like_count,comments_count"
-)
+# Account-level insights use Pacific-time days: each daily value's end_time
+# is local midnight in Los Angeles.
+ACCOUNT_TZ = ZoneInfo("America/Los_Angeles")
+ACCOUNT_WEEK_METRICS = "reach,views,total_interactions"
 
 
-def fetch_business_discovery(
-    ig_user_id: str, token: str, username: str, media_limit: int = 25
-) -> dict:
+def _pacific_midnight(day: date) -> int:
+    return int(datetime.combine(day, time(0), tzinfo=ACCOUNT_TZ).timestamp())
+
+
+def last_complete_day(now: datetime, settle_hours: int = 3) -> date:
     """
-    Public profile info and recent media of ANOTHER professional account,
-    via the Business Discovery API. Raises on error (e.g. the target is
-    not a Business/Creator account) — the collector isolates per-username.
+    The most recent Pacific-time day that closed at least settle_hours ago,
+    so the latest week is never cut short by a day still in progress.
     """
-    fields = (
-        f"business_discovery.username({username})"
-        f"{{username,followers_count,media_count,"
-        f"media.limit({media_limit}){{{BUSINESS_DISCOVERY_MEDIA_FIELDS}}}}}"
-    )
+    return (now - timedelta(hours=settle_hours)).astimezone(ACCOUNT_TZ).date() - timedelta(days=1)
+
+
+def fetch_followers(ig_user_id: str, token: str) -> int:
+    """Current follower count."""
     data = _get(
         f"{GRAPH_BASE}/{ig_user_id}",
-        {"fields": fields, "access_token": token},
+        {"fields": "followers_count", "access_token": token},
     )
-    return data.get("business_discovery", {})
+    return int(data.get("followers_count", 0))
+
+
+def fetch_account_week(ig_user_id: str, token: str, start: date, end: date) -> dict:
+    """
+    Account-wide reach (unique accounts), views and interactions for the
+    Pacific-time days start..end inclusive. The API caps one query at 30
+    days, so history is fetched one week per call.
+    """
+    data = _get(
+        f"{GRAPH_BASE}/{ig_user_id}/insights",
+        {
+            "metric": ACCOUNT_WEEK_METRICS,
+            "period": "day",
+            "metric_type": "total_value",
+            "since": _pacific_midnight(start),
+            "until": _pacific_midnight(end + timedelta(days=1)),
+            "access_token": token,
+        },
+    )
+    return {
+        entry["name"]: (entry.get("total_value") or {}).get("value")
+        for entry in data.get("data", [])
+    }
+
+
+def fetch_daily_follower_gains(ig_user_id: str, token: str, today: date) -> dict[str, int]:
+    """
+    New followers per Pacific-time day for roughly the last 30 days
+    (the API's limit): {iso_day: gained}. Unfollows are not reported.
+    """
+    data = _get(
+        f"{GRAPH_BASE}/{ig_user_id}/insights",
+        {
+            "metric": "follower_count",
+            "period": "day",
+            "since": _pacific_midnight(today - timedelta(days=29)),
+            "until": _pacific_midnight(today),
+            "access_token": token,
+        },
+    )
+    gains = {}
+    for entry in data.get("data", []):
+        for value in entry.get("values", []):
+            # end_time is the midnight that closes the day, so the day is the one before.
+            closed = datetime.fromisoformat(value["end_time"].replace("+0000", "+00:00"))
+            day = closed.astimezone(ACCOUNT_TZ).date() - timedelta(days=1)
+            gains[day.isoformat()] = value.get("value", 0)
+    return gains

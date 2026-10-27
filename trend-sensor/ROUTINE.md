@@ -1,31 +1,53 @@
-# Weekly Intelligence Report — Routine Instructions
+# Weekly Media Report — Routine Instructions
 
-You are producing The Old Mole's weekly intelligence report. The data
-collector has already run; your job is analysis and writing.
+You are writing The Old Mole's weekly media report: how our own YouTube
+and Instagram content did last week. The collector has already run and
+done all the maths. Your job is to turn its numbers into a short, plain
+report that a busy colleague reads in three minutes.
 
 ## Inputs
 
 Read the newest directory under `trend-sensor/output/` (named `YYYY-MM-DD`):
 
-- `run_meta.json` — run date, reporting windows, per-source `statuses`, and
-  `analytics_last_data_date` / `analytics_lag_days` (the last day YouTube
-  Analytics had finalized data; the windows are anchored to it, so both the
-  current and comparison week are always the same length).
-- `competitor_corpus.md` — formatted competitor video metadata: titles,
-  descriptions, and (for core-tier channels) top audience comments. No
-  transcripts — analyze themes and framing from titles, descriptions,
-  and the audience reaction in the comments.
-- `competitor_meta.json` — video/channel counts.
-- `own_youtube.json` — channel week metrics (this + prev week), traffic
-  sources, recent uploads (each with `metrics` and `comments`), and
-  `back_catalog_movers`.
-- `instagram.json` — recent posts (each with `insights` and `comments`),
-  `back_catalog_movers`, and `permalinks`.
-- `instagram_competitors.json` — may be absent. Competitor Instagram
-  profiles via Business Discovery: `profiles` (username, followers_count,
-  media_count, recent_posts with caption/like_count/comments_count/
-  permalink) and per-account `errors`. Public metadata only — competitor
-  comment text and insights are not available via the API.
+- `run_meta.json` — `run_date`, the reporting week for each platform
+  (`youtube_week`, `instagram_week`), the chart paths (`charts`), and
+  per-source `statuses`.
+- `youtube.json`:
+  - `new_uploads` — every upload from the last 7 days: `live_counts`
+    (real-time views, likes, comments), `finalized_analytics` (watch time,
+    average % watched, subscribers gained, shares — only up to the
+    `through` date, so missing or low for the newest uploads), `vs_typical`
+    (comparison with our earlier uploads of the same type), and `comments`.
+  - `this_week_vs_prev` — channel totals for the latest week and the one
+    before, with `pct_change`. `estimatedMinutesWatched` is in minutes.
+  - `top_traffic_sources` — top 3 sources for the week with `share_pct`.
+  - `back_catalog_movers` — older videos with a sudden burst of views.
+- `instagram.json`:
+  - `new_posts` — every post from the last 7 days: `numbers` (reach,
+    views, likes, comments, shares, saved), `vs_typical`, and `comments`.
+  - `this_week_vs_prev` — account totals for the latest week and the one
+    before (reach = unique accounts that saw anything of ours).
+  - `followers_now`, `follower_tracking_since`.
+  - `back_catalog_movers` — older posts with a sudden jump in engagement.
+
+`weekly_history` in both files is what the charts are drawn from. Read it
+to describe the trend; never paste it.
+
+### Reading `vs_typical`
+
+- `{"too_new_to_judge": true}` — the upload is less than a day old. Give
+  its numbers and say it's too new to judge. No verdict.
+- `ratio` is this upload divided by the median of `baseline_n` earlier
+  uploads of the same type (Short, video, live stream, Reel, feed post).
+  `ratio: null` means there isn't enough history: skip that comparison.
+- YouTube `views_at_same_age` compares at the same age in days, so it is
+  fair even for a two-day-old video.
+- Instagram compares against the earlier posts' *lifetime* totals. A post
+  under a week old that is below typical may simply be young — say "so
+  far" and don't call it a flop.
+- Words for ratios: ≥ 1.5 → "about 2×" / "about 3×" (round to the nearest
+  half); 1.15–1.5 → "about X% more than usual"; 0.85–1.15 → "about
+  usual"; below 0.85 → "about X% less than usual".
 
 ## Ground rules
 
@@ -40,197 +62,156 @@ Read the newest directory under `trend-sensor/output/` (named `YYYY-MM-DD`):
 
 ## When collection fails
 
-If `run_meta.json` is missing, or EVERY source status is `"ok": false`,
-do not fabricate analysis: write only the header and warning banners plus
-one line explaining that collection failed, skip all seven analysis
-sections, still commit (so the failure is visible in history), and say
-plainly in your completion message that this week's report is empty and
-why. If only SOME sources failed, keep every mandated H2 heading: for a
-section whose source data is missing, write the heading and one line —
-"No data this week — {source} failed." Never drop a mandated heading.
-In the collector-failure case (stale or missing output directory), never
-overwrite an existing digest; name the failure report after today's date
-instead.
+If `run_meta.json` is missing, or both `youtube` and `instagram` statuses
+are `"ok": false`, write only the title, the warning lines, and one
+sentence saying collection failed and why. Still commit, so the failure
+is visible in history. Say plainly in your completion message that this
+week's report is empty. In the stale or missing output case, never
+overwrite an existing digest; name the failure report after today's date.
+
+If only one platform failed, keep both `##` headings and write under the
+failed one: "No data this week — {source} failed." If a `*_chart` status
+failed, leave out that image and write "The trend chart failed to render
+this week." under the Trends heading, then still describe the trend from
+`weekly_history`.
 
 ## Output
 
-Write `trend-sensor/digests/{run_date}.md` with EXACTLY these seven sections.
+Write `trend-sensor/digests/{run_date}.md` in exactly this shape. The
+whole report stays under **700 words** (not counting image lines), which
+fits on 1–2 printed pages with the charts.
 
-YouTube and Instagram are never merged. Each platform gets its own H2 for
-performance and its own H2 for audience, and YouTube always comes first.
-Cross-platform comparison belongs only in the TL;DR and in the
-cross-cutting audience subsection — never inside a platform's own section.
+```markdown
+# Weekly Media Report — {run_date}
 
-### 0. Header and warning banners
+> ⚠️ **{source} data missing this week:** {error, in plain words}.
+(one line per failed source; omit when everything worked)
 
-Title: `# Weekly Intelligence Report — {run_date}`.
-For every source in `run_meta.json` statuses with `"ok": false`, add
-immediately under the title:
+## YouTube
 
-> ⚠️ **{source} data missing this week:** {error}. The affected sections
-> are omitted or partial.
+_Week of {youtube_week start} to {youtube_week end}._ {One or two sentences:
+the headline of the week — views and subscribers, up or down, and why.}
 
-### 1. `## TL;DR`
+### New uploads
 
-At most 10 bullets total, grouped under three bold labels in this order —
-`**YouTube**`, `**Instagram**`, `**Landscape**` — with a blank line between
-groups. No bullet mixes platforms except a deliberate cross-platform
-comparison, which goes last inside the Instagram group.
+| Upload | Type | Posted | Views | Hours watched | Avg % watched | Likes | Comments | New subs |
+|---|---|---|--:|--:|--:|--:|--:|--:|
+| [{short title}]({url}) | {Short / Video / Live} | {Thu 22 Oct} | {views} | {hours} | {%} | {likes} | {comments} | {+subs} |
 
-The single most important takeaways: biggest performance story per
-platform, loudest audience signal, most significant landscape shift, top
-content opportunity. Every bullet must be specific (name the video/post/
-theme and the number that matters). Cover a group only when there is a
-genuine signal — drop the label entirely if a platform did nothing this
-week, and never pad toward 10 bullets.
+(one row per upload, newest first; titles cut to about 40 characters;
+"–" for a figure that isn't available yet. If there are no uploads, write
+"No new uploads this week." instead of the table and the blocks below.)
 
-### 2. `## Our Week — YouTube`
+**{short title}**
+- **Compared with usual:** {views at same age, % watched — using the ratio wording above}.
+- **Verdict:** {one plain sentence on how it did and the most likely reason}.
+- **Comments:** {one sentence on what people said; add one quote of 15 words or fewer only if it really stands out}.
 
-- Channel table: this week vs. prev week (views, watch time, avg view
-  duration, subs gained/lost) with % change.
-- Traffic sources: top 3 with view counts.
-- Per recent upload: title (first ~60 chars), key metrics inline, ordered
-  by views descending.
-- `### Back-catalog movers — YouTube`: each mover with its numbers and URL,
-  built as `https://www.youtube.com/watch?v={video_id}`. If none: "No
-  unusual back-catalog activity this week."
-- Note: impressions/CTR are not available via API (YouTube Studio only).
-- Note: view counts here are **window-scoped and lag-bounded** — they count
-  only the days in the reporting window that analytics has finalized data
-  for, which `run_meta.json` reports as `analytics_last_data_date`. YouTube
-  Studio's list view shows *lifetime* views including the still-unfinalized
-  last few days, so for a video published mid-window Studio will read
-  substantially higher. This is not an undercount; the two numbers answer
-  different questions. State the window in the section so the difference is
-  never mistaken for a collection error.
+(one block per upload, same order as the table. The numbers live only
+in the table, so don't repeat them here except inside a comparison.)
 
-### 3. `## Our Week — Instagram`
+### Trends
 
-- Per recent post: caption (first ~60 chars), key metrics inline (reach,
-  views, likes, comments, shares, saves), ordered by reach descending.
-- `### Back-catalog movers — Instagram`: each mover with its engagement
-  delta and permalink. If none: "No unusual back-catalog activity this
-  week."
+![YouTube trends over 26 weeks](charts/{run_date}/youtube.png)
 
-### 4. `## Our Audience — YouTube`
+{Two or three sentences reading the chart: where each line is heading over
+the months, and anything unusual. Don't repeat numbers the chart titles
+already show.}
 
-### 5. `## Our Audience — Instagram`
+- **Where views came from:** {top 3 sources in plain words with their share}.
+- **Older video picking up:** {[title or link](url): views this week vs last}. (omit the line when there are none)
 
-Both sections take the same form. For each recent post on that platform
-that has comments (skip posts with none):
-- Sentiment split: rough % positive / negative / mixed-neutral.
-- 3-5 recurring comment clusters, each with a one-line label and ONE
-  representative quote (verbatim, ≤25 words).
-- Standout comments worth acting on: substantive critiques, questions
-  worth answering, and explicit content requests.
+## Instagram
 
-When a platform has more commented posts than that treatment can carry at
-readable length, give the full treatment to the posts with genuine
-discussion and cover the remainder in one compact table (post, comment
-count, sentiment, notable line). Never silently drop a commented post, and
-say in one line that you grouped them.
+_Week of {instagram_week start} to {instagram_week end}._ {One or two
+sentences: the headline of the week — reach and followers.}
 
-End the **Instagram** section — as the second of the two — with
-`### Cross-cutting audience signals`: 2-4 bullets on patterns appearing
-across multiple posts or across both platforms. This is the only place in
-the two audience sections where platforms may be discussed together.
+### New posts
 
-### 6. `## The Landscape`
+| Post | Type | Posted | Reached | Views | Likes | Comments | Shares | Saves |
+|---|---|---|--:|--:|--:|--:|--:|--:|
+| [{caption cut to ~40 characters}]({permalink}) | {Reel / Post / Carousel} | {Fri 23 Oct} | {reach} | {views} | {likes} | {comments} | {shares} | {saves} |
 
-Analyze `competitor_corpus.md` for 6-10 structural themes, exactly as the
-podcast's analytical tradition demands: not news summaries but underlying
-contradictions, long-running crises, and social anxieties multiple sources
-are independently circling. For each theme (H3 heading):
+(one row per post, newest first; "No new posts this week." when empty.)
 
-1. Concise name (≤5 words)
-2. The structural dynamic in 2-3 sentences (what contradiction or tendency
-   of capitalism produces this?)
-3. Signal strength: HIGH / MEDIUM / LOW
+**{short caption}**
+- **Compared with usual:** {the two or three metrics that stand out, using the ratio wording}.
+- **Verdict:** {one plain sentence}.
+- **Comments:** {one sentence; optional quote of 15 words or fewer}.
 
-Then `### Theme × Framing Matrix` — a table: rows = themes, columns =
-channels that touched the theme, cells = a 2-5 word framing/tone
-descriptor (e.g. "doomer explainer", "organizing-focused", "polemic",
-"electoral horse-race", "ironic/meme"). Present the matrix RAW: no
-commentary, no recommendations, no "gap" analysis in this section.
+### Trends
 
-If `instagram_competitors.json` exists and has profiles, add
-`### Instagram competitor pulse`: one line per account — followers,
-posts this week, and the standout post (caption first ~60 chars,
-like/comment counts, permalink). Present raw, no commentary. Note any
-accounts listed under `errors` in one line. Omit the whole subsection
-when the file is absent or has no profiles.
+![Instagram trends over 26 weeks](charts/{run_date}/instagram.png)
 
-### 7. `## Podcast Angles`
+{Two or three sentences reading the chart. While follower history is
+short, say once: "Follower tracking started {follower_tracking_since},
+so earlier points are estimates."}
 
-3-6 concrete episode angles connecting the landscape themes to what OUR
-audience is asking for (from the two Our Audience sections). Each: a
-framing/question that makes for Marxist analysis rather than liberal
-commentary, plus one line on why now.
+- **Older post picking up:** {[link](permalink): +{n} likes and comments this week}. (omit when there are none)
+```
 
-## Style
+### Plain-language rules
 
-The whole report must be readable in ~10 minutes. Tables over prose for
-numbers. No preamble, no meta-commentary about your process.
+The old report was hard to read. These rules exist to fix that:
+
+- Write like a colleague giving a quick update. Short sentences — 20 words
+  at most. Everyday words.
+- No political or theoretical analysis. This report is about how our
+  content performed, not about the topics themselves.
+- Banned words and phrases: structural, dynamic, signal, landscape,
+  narrative, resonate, underscores, notably, it's worth noting,
+  interestingly, this suggests, overall, conversion device, intensity.
+- No more than one dash-separated aside per paragraph. No semicolons.
+- Round numbers: 51.6k, 1.2M, 5.4k hours, +19%. Below 1,000, write the
+  number. Percent changes as whole numbers.
+- Watch time in hours (minutes ÷ 60). Average % watched as a whole percent.
+- Traffic sources in plain words: SUBSCRIBER → subscribers' feeds,
+  YT_SEARCH → YouTube search, RELATED_VIDEO → suggested videos,
+  YT_CHANNEL → our channel page, EXT_URL → links from other sites,
+  NO_LINK_OTHER → direct or unknown, PLAYLIST → playlists, SHORTS → the
+  Shorts feed, NOTIFICATION → notifications, YT_OTHER_PAGE → other
+  YouTube pages, END_SCREEN → end screens.
+- Never invent a reason for a result. If the data doesn't show why, say
+  what happened and stop.
+- Nothing outside the template: no summary at the end, no
+  recommendations, no notes about your process.
 
 ## After writing the report
 
-1. `git add trend-sensor/digests/ trend-sensor/state/`
+1. `git add trend-sensor/digests/ trend-sensor/state/` (this includes the
+   chart images in `digests/charts/{run_date}/`).
 2. Commit with message `digest: {run_date}` and push. If git reports
    nothing to commit, skip the push and note it in your completion
    message. If the push is rejected, `git pull --rebase` once and retry;
    if it still fails, report the failure in your completion message
    rather than stopping silently.
 3. Post the Slack notification (see below).
-4. Your completion message must be the TL;DR section verbatim, prefixed
-   by any warning banners, then one line on push and Slack outcomes.
+4. Your completion message: any warning lines, then the two headline
+   sentences (YouTube, Instagram) verbatim, then one line on push and
+   Slack outcomes.
 
 ## Slack notification
 
-Post the report to the RCI Media Team workspace, channel `#weekly-report`
+Post to the RCI Media Team workspace, channel `#weekly-report`
 (`channel_id: C0BNN5Y683E`), using the Slack connector's
 `slack_send_message` with `unfurl_app_links: true`. One message, no
-thread, no splitting.
+thread. It's a teaser — people read the full report on GitHub.
 
-Body, in this order:
+```
+**The Old Mole — Weekly Media Report — {run_date}**
+📺 **YouTube:** {views} views ({±x%}), {±n} subscribers. Best upload: {title, shortened} — {its comparison in a few words}.
+📸 **Instagram:** {reach} accounts reached ({±x%}), {±n} followers. Best post: {caption, shortened} — {its comparison in a few words}.
+[Read the full report](https://github.com/Sebzdead/The-Old-Mole/blob/main/trend-sensor/digests/{run_date}.md)
+```
 
-1. `**The Old Mole — Weekly Intelligence Report — {run_date}**`
-2. `_Window {this_start} → {this_end} · prev {prev_start} → {prev_end} · {one clause on source health}_`
-3. `[Read the full report](https://github.com/Sebzdead/The-Old-Mole/blob/main/trend-sensor/digests/{run_date}.md)`
-   Include it ONLY if the push succeeded. If the push failed or there was
-   nothing to commit, replace the link with:
-   `_Committed locally as {short_sha} — not pushed, so the link is not live yet._`
-4. Every warning banner, one `⚠️ ...` line each.
-5. The TL;DR, **regrouped for Slack — do not paste it verbatim.** Four
-   labelled blocks in this order, each introduced by a bold line and
-   holding at most three bullets:
-   - `**📺 YouTube**` — open with the channel headline metrics as a single
-     `>` blockquote (views, watch time, avg duration, net subs, each with
-     its % change), then bullets for the performance stories.
-   - `**📸 Instagram**` — post reach/engagement stories. A cross-platform
-     comparison, if there is one worth making, goes here as the last bullet.
-   - `**🗣 Audience**` — what viewers asked for, complained about, or
-     pushed back on, labelled by platform where it matters.
-   - `**🌍 Landscape**` — themes multiple competitor channels circled.
-   Drop a block entirely if the week produced no genuine signal for it.
-6. `_Full report: YouTube · Instagram · Audience · Landscape · Podcast Angles_`
-
-Rules:
-
-- The connector takes standard markdown, so `**bold**`, `_italic_`,
-  `> quote` and `[text](url)` all work.
-- **One line per bullet, two at the absolute most.** Slack has no column
-  width — a three-line bullet is a wall.
-- Open each bullet with a bold label of six words or fewer that states
-  the finding on its own, then ` — `, then the evidence. Bold spanning
-  half a sentence highlights nothing.
-- Round the numbers here (+227%, 305k watch-minutes); the digest keeps
-  the precise figures. Quotes inside bullets: 12 words maximum.
-- Keep the message under 4,500 characters. If it runs over, cut whole
-  bullets from the bottom of each block and append
-  `_…more in the full report._` Never truncate mid-bullet.
-- In the collector-failure branch (empty report), still post: the
-  heading, the banners, and the one-line explanation of what failed.
-  There is no TL;DR to include.
+- Each platform line stays on one line in Slack (about 25 words max).
+  "Best" means the highest views-at-same-age ratio (YouTube) or reach
+  ratio (Instagram). Leave out "Best …" when there were no new uploads.
+- Add one `⚠️ …` line per failed source above the link.
+- Include the link only if the push succeeded. Otherwise replace it with
+  `_Committed locally as {short_sha} — not pushed, so the link is not live yet._`
+- In the collector-failure case, post the title, the warning lines and
+  the one-sentence explanation.
 - If the send fails, retry once. If it fails again, report it in your
   completion message and move on — a Slack failure never blocks or
   changes the commit.

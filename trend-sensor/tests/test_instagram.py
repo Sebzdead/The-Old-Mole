@@ -150,39 +150,17 @@ def test_save_snapshot_accepts_bare_filename(tmp_path, monkeypatch):
     assert instagram.load_snapshot("snap.json") == {"snapshot_date": "d", "media": {}}
 
 
-def test_fetch_business_discovery_queries_username_and_unwraps(monkeypatch):
-    calls = []
-
-    def fake_get(url, params):
-        calls.append((url, params))
-        return {
-            "business_discovery": {
-                "username": "novaramedia",
-                "followers_count": 250000,
-                "media_count": 1200,
-                "media": {"data": [{"id": "m1", "like_count": 500}]},
-            },
-            "id": "17841436273077342",
-        }
-
-    monkeypatch.setattr(instagram, "_get", fake_get)
-    out = instagram.fetch_business_discovery(
-        "17841436273077342", "tok", "novaramedia", media_limit=25
-    )
-    assert out["username"] == "novaramedia"
-    assert out["followers_count"] == 250000
-    assert out["media"]["data"][0]["id"] == "m1"
-    url, params = calls[0]
-    assert url.endswith("/17841436273077342")
-    assert "business_discovery.username(novaramedia)" in params["fields"]
-    assert "media.limit(25)" in params["fields"]
-    assert "like_count" in params["fields"]
+def test_last_complete_day_skips_the_day_in_progress():
+    from datetime import datetime, timezone, date
+    # Monday 05:00 UTC is still Sunday evening in Los Angeles.
+    assert instagram.last_complete_day(datetime(2026, 10, 26, 5, tzinfo=timezone.utc)) == date(2026, 10, 24)
+    # Sunday 21:00 UTC: Saturday closed 14 hours ago.
+    assert instagram.last_complete_day(datetime(2026, 11, 1, 21, tzinfo=timezone.utc)) == date(2026, 10, 31)
 
 
-def test_fetch_business_discovery_propagates_errors(monkeypatch):
-    def fake_get(url, params):
-        raise RuntimeError("(#100) no matching business profile")
-
-    monkeypatch.setattr(instagram, "_get", fake_get)
-    with pytest.raises(RuntimeError, match="no matching business"):
-        instagram.fetch_business_discovery("178", "tok", "notabusiness")
+def test_fetch_daily_follower_gains_keys_by_closed_day(monkeypatch):
+    from datetime import date
+    monkeypatch.setattr(instagram, "_get", lambda url, params: {"data": [{"values": [
+        {"value": 7, "end_time": "2026-10-20T07:00:00+0000"},
+    ]}]})
+    assert instagram.fetch_daily_follower_gains("u", "t", date(2026, 10, 27)) == {"2026-10-19": 7}

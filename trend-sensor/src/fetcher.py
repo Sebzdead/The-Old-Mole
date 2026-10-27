@@ -1,8 +1,8 @@
 import os
+import re
 from datetime import datetime, timezone, timedelta
 from dateutil.parser import isoparse
 from googleapiclient.discovery import build
-from src.cache import is_video_cached
 from src.redact import redact_secrets
 
 
@@ -109,30 +109,46 @@ def get_channel_uploads(
     return videos
 
 
-def fetch_all_channels(
-    channels: list[dict], days_back: int = 7
-) -> list[dict]:
-    """
-    Iterates over channels config list, fetches recent videos, and filters
-    out already-cached videos.
-    """
-    new_videos = []
-    for ch in channels:
-        channel_id = ch["id"]
-        channel_name = ch["name"]
-        tier = ch.get("tier", "broad")
+def _duration_seconds(iso: str) -> int:
+    """Seconds in an ISO 8601 duration like PT1H2M3S (days are not used by YouTube)."""
+    match = re.fullmatch(r"P(?:\d+D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", iso or "")
+    if not match:
+        return 0
+    h, m, s = (int(x) if x else 0 for x in match.groups())
+    return h * 3600 + m * 60 + s
 
-        print(f"Fetching {channel_name}...")
-        fetched = get_channel_uploads(
-            channel_id, channel_name, tier, days_back
+
+def video_type(details: dict) -> str:
+    """'live', 'short' (<= 3 min) or 'video' — the groups uploads are compared within."""
+    if details.get("liveStreamingDetails"):
+        return "live"
+    seconds = _duration_seconds(details.get("contentDetails", {}).get("duration", ""))
+    return "short" if 0 < seconds <= 180 else "video"
+
+
+def get_video_details(video_ids: list[str]) -> dict[str, dict]:
+    """
+    Live public counts and type per video: {video_id: {"type", "duration_s",
+    "views", "likes", "comments"}}. Counts are real time, unlike Analytics.
+    """
+    youtube = get_youtube_client()
+    out = {}
+    for i in range(0, len(video_ids), 50):
+        response = (
+            youtube.videos()
+            .list(
+                part="statistics,contentDetails,liveStreamingDetails",
+                id=",".join(video_ids[i:i + 50]),
+            )
+            .execute()
         )
-
-        channel_new_count = 0
-        for vid in fetched:
-            if not is_video_cached(vid["video_id"]):
-                new_videos.append(vid)
-                channel_new_count += 1
-
-        print(f"Fetcher: {channel_name}... {channel_new_count} new videos found")
-
-    return new_videos
+        for item in response.get("items", []):
+            stats = item.get("statistics", {})
+            out[item["id"]] = {
+                "type": video_type(item),
+                "duration_s": _duration_seconds(item.get("contentDetails", {}).get("duration", "")),
+                "views": int(stats.get("viewCount", 0)),
+                "likes": int(stats.get("likeCount", 0)),
+                "comments": int(stats.get("commentCount", 0)),
+            }
+    return out
