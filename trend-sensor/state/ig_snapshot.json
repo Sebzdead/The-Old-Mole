@@ -1,72 +1,72 @@
 {
-  "snapshot_date": "2026-11-09",
+  "snapshot_date": "2026-11-15",
   "media": {
     "18116119502179976": {
-      "engagement": 1261,
-      "delta": 0
+      "engagement": 2744,
+      "delta": 1483
     },
     "18109662128630419": {
-      "engagement": 1450,
-      "delta": 0
+      "engagement": 1528,
+      "delta": 78
     },
     "18144720040596798": {
-      "engagement": 2246,
-      "delta": 227
+      "engagement": 2269,
+      "delta": 23
     },
     "18000641673014741": {
-      "engagement": 3178,
-      "delta": 165
+      "engagement": 3192,
+      "delta": 14
     },
     "18015600830974477": {
-      "engagement": 5223,
-      "delta": 324
+      "engagement": 5300,
+      "delta": 77
     },
     "18100504409543378": {
-      "engagement": 8922,
-      "delta": 25
+      "engagement": 8933,
+      "delta": 11
     },
     "18635885977025494": {
-      "engagement": 6350,
-      "delta": 437
+      "engagement": 6673,
+      "delta": 323
     },
     "18117503162064679": {
-      "engagement": 2666,
-      "delta": 21
-    },
-    "18113710040274178": {
-      "engagement": 1824,
+      "engagement": 2672,
       "delta": 6
     },
+    "18113710040274178": {
+      "engagement": 1828,
+      "delta": 4
+    },
     "18123818440856018": {
-      "engagement": 3125,
-      "delta": 2
+      "engagement": 3132,
+      "delta": 7
     },
     "18000983220006354": {
       "engagement": 532,
       "delta": 0
     },
     "17906852640520475": {
-      "engagement": 2855,
-      "delta": 4
+      "engagement": 2861,
+      "delta": 6
     },
     "18435473059179618": {
-      "engagement": 1012,
-      "delta": 0
+      "engagement": 1014,
+      "delta": 2
     },
     "17987595861059713": {
-      "engagement": 1333,
-      "delta": -1
+      "engagement": 1334,
+      "delta": 1
     },
     "18103943414256850": {
-      "engagement": 2254,
-      "delta": -1
+      "engagement": 2255,
+      "delta": 1
     },
     "18108398912588162": {
-      "engagement": 2154,
-      "delta": -2
+      "engagement": 2156,
+      "delta": 2
     },
     "17968850283156513": {
-      "engagement": 1427,
+      "engagement": 1426,
       "delta": -1
     },
     "18403015510088779": {
@@ -74,48 +74,48 @@
       "delta": 0
     },
     "18614922508025628": {
-      "engagement": 3888,
-      "delta": 1
+      "engagement": 3887,
+      "delta": -1
     },
     "18102194975594885": {
-      "engagement": 9134,
+      "engagement": 9137,
       "delta": 3
     },
     "18128201323709280": {
-      "engagement": 3791,
+      "engagement": 3794,
       "delta": 3
     },
     "18117268351936023": {
-      "engagement": 2865,
-      "delta": -2
+      "engagement": 2866,
+      "delta": 1
     },
     "18113224279941651": {
-      "engagement": 7376,
-      "delta": 17
+      "engagement": 7392,
+      "delta": 16
     },
     "18081497528479243": {
       "engagement": 1374,
       "delta": 0
     },
     "18110769460949519": {
-      "engagement": 2477,
-      "delta": -1
+      "engagement": 2478,
+      "delta": 1
     },
     "18136425940597928": {
-      "engagement": 2474,
-      "delta": -1
+      "engagement": 2476,
+      "delta": 2
     },
     "18010517834942918": {
-      "engagement": 16114,
-      "delta": -7
+      "engagement": 16110,
+      "delta": -4
     },
     "18158695954479304": {
       "engagement": 1455,
-      "delta": 1
+      "delta": 0
     },
     "18107345234002132": {
-      "engagement": 2403,
-      "delta": -3
+      "engagement": 2402,
+      "delta": -1
     },
     "18478928527097556": {
       "engagement": 2339,
@@ -126,52 +126,52 @@
       "delta": 0
     },
     "18004310132954587": {
-      "engagement": 8671,
-      "delta": 2
+      "engagement": 8669,
+      "delta": -2
     },
     "18121172266808481": {
       "engagement": 2217,
-      "delta": -1
+      "delta": 0
     },
     "18411216175145439": {
       "engagement": 1777,
-      "delta": -1
+      "delta": 0
     },
     "18087126749428167": {
-      "engagement": 3824,
+      "engagement": 3823,
       "delta": -1
     },
     "17989328750822778": {
-      "engagement": 2732,
-      "delta": 1
+      "engagement": 2734,
+      "delta": 2
     },
     "18052149134531184": {
-      "engagement": 1758,
-      "delta": 0
+      "engagement": 1760,
+      "delta": 2
     },
     "18599548861028700": {
       "engagement": 1203,
       "delta": 0
     },
     "18318054544263911": {
-      "engagement": 5104,
+      "engagement": 5103,
       "delta": -1
     },
     "18030989439067392": {
-      "engagement": 2325,
-      "delta": 0
+      "engagement": 2326,
+      "delta": 1
     },
     "18107270737947765": {
-      "engagement": 22493,
-      "delta": -10
+      "engagement": 22485,
+      "delta": -8
     },
     "17895177480479346": {
-      "engagement": 3118,
-      "delta": 0
+      "engagement": 3119,
+      "delta": 1
     },
     "18128249746626930": {
-      "engagement": 1518,
-      "delta": 1
+      "engagement": 1522,
+      "delta": 4
     },
     "17929252371337163": {
       "engagement": 1520,
@@ -182,8 +182,8 @@
       "delta": 0
     },
     "18105980779779049": {
-      "engagement": 3235,
-      "delta": 0
+      "engagement": 3234,
+      "delta": -1
     },
     "18112783093881671": {
       "engagement": 825,
@@ -194,36 +194,36 @@
       "delta": 0
     },
     "18078136037535096": {
-      "engagement": 1573,
+      "engagement": 1572,
       "delta": -1
     },
     "18083590397616126": {
-      "engagement": 30043,
-      "delta": -10
+      "engagement": 30034,
+      "delta": -9
     },
     "18041216933569937": {
       "engagement": 735,
-      "delta": 1
+      "delta": 0
     },
     "17862396573567339": {
       "engagement": 1181,
       "delta": 0
     },
     "18091598201265010": {
-      "engagement": 806,
-      "delta": 0
+      "engagement": 805,
+      "delta": -1
     },
     "17986422980977577": {
-      "engagement": 638,
-      "delta": 0
+      "engagement": 636,
+      "delta": -2
     },
     "18079787663429778": {
       "engagement": 860,
-      "delta": -1
+      "delta": 0
     },
     "18113376571774079": {
-      "engagement": 2541,
-      "delta": 0
+      "engagement": 2539,
+      "delta": -2
     },
     "17911742799363167": {
       "engagement": 904,
@@ -235,91 +235,91 @@
     },
     "17996510471927462": {
       "engagement": 2424,
-      "delta": -1
+      "delta": 0
     },
     "18178769356389281": {
       "engagement": 1375,
-      "delta": -1
+      "delta": 0
     },
     "18087858386585694": {
-      "engagement": 2931,
+      "engagement": 2930,
       "delta": -1
     },
     "18345250027240964": {
-      "engagement": 4179,
+      "engagement": 4178,
       "delta": -1
     },
     "17964056451027332": {
-      "engagement": 1177,
+      "engagement": 1176,
       "delta": -1
     },
     "17962717746026515": {
-      "engagement": 2632,
-      "delta": 1
+      "engagement": 2631,
+      "delta": -1
     },
     "17958935589073354": {
       "engagement": 972,
       "delta": 0
     },
     "17931722511215302": {
-      "engagement": 8962,
-      "delta": 1
+      "engagement": 8958,
+      "delta": -4
     },
     "18109932430796787": {
       "engagement": 776,
-      "delta": -1
+      "delta": 0
     },
     "18076369925138502": {
       "engagement": 956,
-      "delta": -1
+      "delta": 0
     },
     "17888882622333584": {
-      "engagement": 26977,
-      "delta": -8
+      "engagement": 26973,
+      "delta": -4
     },
     "18084726044578232": {
       "engagement": 1590,
-      "delta": -1
+      "delta": 0
     },
     "17941809990155727": {
       "engagement": 1453,
-      "delta": -1
+      "delta": 0
     },
     "17938904616014496": {
       "engagement": 1352,
       "delta": 0
     },
     "18114271996642103": {
-      "engagement": 3112,
+      "engagement": 3111,
       "delta": -1
     },
     "18396106993198316": {
-      "engagement": 5718,
-      "delta": 0
+      "engagement": 5715,
+      "delta": -3
     },
     "18094802012005607": {
       "engagement": 1291,
-      "delta": 1
+      "delta": 0
     },
     "18073314203431838": {
       "engagement": 2631,
-      "delta": -1
+      "delta": 0
     },
     "17974385223005117": {
-      "engagement": 3814,
-      "delta": -1
+      "engagement": 3815,
+      "delta": 1
     },
     "17892329781421337": {
       "engagement": 2332,
-      "delta": -2
+      "delta": 0
     },
     "18358565047205547": {
       "engagement": 2349,
       "delta": 0
     },
     "18326841583172119": {
-      "engagement": 904,
-      "delta": 0
+      "engagement": 905,
+      "delta": 1
     },
     "18334663618245751": {
       "engagement": 382,
@@ -334,16 +334,16 @@
       "delta": 0
     },
     "18036249770725490": {
-      "engagement": 1470,
-      "delta": 1
+      "engagement": 1469,
+      "delta": -1
     },
     "18104165194691640": {
       "engagement": 1043,
       "delta": 0
     },
     "17970324486001491": {
-      "engagement": 2139,
-      "delta": 0
+      "engagement": 2138,
+      "delta": -1
     },
     "18413405827191962": {
       "engagement": 1817,
@@ -351,15 +351,15 @@
     },
     "18160703419407741": {
       "engagement": 3566,
-      "delta": -2
+      "delta": 0
     },
     "18051988505676004": {
       "engagement": 1041,
       "delta": 0
     },
     "18064153757554535": {
-      "engagement": 5611,
-      "delta": -2
+      "engagement": 5608,
+      "delta": -3
     },
     "17850109257609582": {
       "engagement": 1284,
@@ -370,7 +370,7 @@
       "delta": 0
     },
     "18422573992119580": {
-      "engagement": 4140,
+      "engagement": 4139,
       "delta": -1
     },
     "18302964823255893": {
@@ -382,8 +382,8 @@
       "delta": 0
     },
     "18164038489388204": {
-      "engagement": 20081,
-      "delta": -5
+      "engagement": 20080,
+      "delta": -1
     },
     "18075881738250818": {
       "engagement": 798,
@@ -398,7 +398,7 @@
       "delta": 0
     },
     "18365443003091985": {
-      "engagement": 1395,
+      "engagement": 1394,
       "delta": -1
     }
   }
